@@ -1,0 +1,13 @@
+# Kviria Documentation
+
+Public documentation for [Kviria](https://kviria.com), published at [docs.kviria.com](https://docs.kviria.com).
+
+## Links
+
+- **Docs:** https://docs.kviria.com
+- **Live demo:** https://kviria.com
+- **Get an API key:** https://api.kviria.com/key
+- **Skill contract:** https://kviria.com/skill.md
+- **Tool definition:** https://kviria.com/tool-definition.json
+- **OpenAPI 3.1 spec:** https://api.kviria.com/openapi.json
+- **Contact:** hello@kviria.com

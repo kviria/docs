@@ -1,0 +1,84 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Kviria",
+  "theme": "mint",
+  "colors": {
+    "primary": "#5e5e5e",
+    "light": "#e5e5e5"
+  },
+  "favicon": {
+    "light": "/images/favicon.ico",
+    "dark": "/images/favicon.ico"
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "logo": {
+    "light": "/images/apple-icon.png",
+    "dark": "/images/Logo(2).svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "href": "https://kviria.com",
+        "label": "Live demo"
+      },
+      {
+        "href": "https://api.kviria.com/key",
+        "label": "Get a key"
+      },
+      {
+        "href": "mailto:hello@kviria.com",
+        "label": "Contact"
+      }
+    ]
+  },
+  "errors": {
+    "404": {
+      "redirect": false
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity"
+    ],
+    "display": "header"
+  },
+  "appearance": {
+    "default": "dark",
+    "strict": true
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get started",
+        "pages": [
+          "index",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Reference",
+        "pages": [
+          "api/agent",
+          "api/limits",
+          "api/mcp",
+          "data",
+          "changelog"
+        ]
+      }
+    ]
+  },
+  "background": {
+    "color": {
+      "dark": "#171717"
+    }
+  },
+  "fonts": {
+    "family": "Geist"
+  }
+}

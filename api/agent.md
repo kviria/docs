@@ -1,0 +1,74 @@
+---
+title: Agent endpoint
+description: Request fields and response schema for POST /v1/agent.
+---
+
+```text
+POST https://api.kviria.com/v1/agent
+Authorization: Bearer kvr_...
+x-kviria-agent: my-agent
+Content-Type: application/json
+Max body: 16 KB
+```
+
+Every call requires a Bearer key (from [api.kviria.com/key](https://api.kviria.com/key)) or an OAuth token, plus an agent identifier (`3` to `64` lowercase letters, digits, or hyphens) via `x-kviria-agent` or `?agent=`.
+
+The full JSON Schema is published at [kviria.com/tool-definition.json](https://kviria.com/tool-definition.json) and the OpenAPI specification at [api.kviria.com/openapi.json](https://api.kviria.com/openapi.json). For quotas, headers, and error codes, see [Rate limits and errors](/api/limits).
+
+## Request body
+
+Send the user's message directly with `request: "ask"` and `words`, or send structured fields parsed by your agent.
+
+| Field | Type | When | Description |
+|---|---|---|---|
+| `request` | string | Required | `ask`, `find`, `search`, `near`, `across`, `next_to`, `corner`, `street_end`, `resolve`, `pick`, `confirm`, or `more` |
+| `words` | string | `ask`, `resolve` | The user's message (`ask`) or named target in an area (`resolve`), up to `200` characters |
+| `state` | string | Every call | The `state` string from the previous response (`""` on the first turn) |
+| `anchor` | `{ lat, lng }` | First turn (position) | The user's current WGS 84 position. Omit on follow-up turns unless the user moved |
+| `area` | string | First turn (area) | Area to search (`"Brooklyn"`, `"Austin, TX"`) when not searching around a GPS pin. Never send with `anchor` |
+| `kind` | string | `search`, `near`, `next_to`, `resolve` | Category in the user's own words (`"coffee shop"`, `"watch repair"`) |
+| `place` | `{ name }` or `{ ref }` | `find`, `near`, `across`, `next_to` | A place name as spoken, or the `gers` ID returned on an earlier turn |
+| `address` | `{ number, street }` | `find` | Street number and street name |
+| `streets` | `[string, string]` | `corner`, `find`, `near` | The two intersecting streets of a corner |
+| `street` | string | `across`, `next_to`, `street_end` | Street named by the user |
+| `streetNot` | string | `search`, `near`, `across`, `next_to` | Street excluded by the user (never combine with `street`) |
+| `side` | `"left" \| "right"` | `next_to` | Side of the named place as seen facing its door |
+| `facing` | object | Optional | What the user faces (`name`, `address`, `streets`, or `street`) |
+| `toward` | string | Optional | Direction relative to the user: `"ahead"`, `"behind"`, `"left"`, or `"right"` |
+| `pick` | integer | `pick` | 1-based index chosen from the last candidate list or `areaOptions` |
+| `answer` | `"yes" \| "no"` | `confirm` | User's confirmation for `one_unconfirmed` |
+| `rangeM` | integer | Optional | Search radius in meters (`250` to `500`, default `500`) |
+| `confirmation` | `"on" \| "off"` | Optional | `"on"` (default) holds partial matches as `one_unconfirmed`; `"off"` resolves immediately |
+| `heading` | number | Optional | Client compass heading in degrees (`0` to `360`) |
+
+## Response body
+
+| Field | Present on | Description |
+|---|---|---|
+| `decision` | Always | `one`, `one_unconfirmed`, `many`, `none`, or `unclear` |
+| `target` | `one`, `one_unconfirmed` | The matched place, address, or intersection (`location` is omitted on `one_unconfirmed` until confirmed) |
+| `candidates` | `many` | Matching places to choose from |
+| `distinguishBy` | `many` | Fact that tells the top options apart: `street`, `side`, `corner`, `direction`, `height`, or `number` |
+| `areaOptions` | `unclear` (area) | Clarification question (`area`, `cluster`, `street`, `resolve`, or `kind`) with up to 3 `options` |
+| `area` | Area turns | The resolved area (`id`, `name`, `level`, `parent`, `region`) |
+| `anchor` | Area turns | Coordinate the area result is measured from |
+| `confirmed` | `one` | `true` when settled by user confirmation |
+| `category` | `none` | The requested category when none was found |
+| `evidence` | Always | Structured audit trail for logging and debugging (never read to the user) |
+| `state` | Always | Signed conversation state to send on the next turn |
+
+### Target fields
+
+Each `target` (and each item in `candidates`) includes `gers`, `name`, `category`, `confidence`, and when available:
+
+- `location`: `{ lat, lng }` (omitted on `one_unconfirmed`).
+- `distanceM`: straight-line distance in meters from the anchor (omitted on unanchored area browse lists).
+- `walkM`: street-network walking distance in meters.
+- `direction`: compass quadrant from the anchor (`northwest`, `northeast`, `southwest`, `southeast`).
+- `address`: `{ number, street }`, or `nearAddress` when only a nearby address is recorded.
+- `corner`: intersecting streets when the place sits on a corner.
+- `nextTo`, `sameBuilding`, `tallBuilding`, `acrossFromYou`, `acrossStreet`, `relative`, `baseDistanceM`.
+
+## Compatibility
+
+New response fields and new optional request fields are non-breaking additions. Configure your client to ignore unknown JSON fields.

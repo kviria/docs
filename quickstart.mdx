@@ -1,0 +1,161 @@
+---
+title: Quickstart
+description: Connect Kviria to your agent in two minutes via MCP or HTTP.
+icon: rocket
+---
+
+<Steps>
+  <Step title="Connect or get a key">
+    <Tabs>
+      <Tab title="HTTP API (Key)">
+        Open [api.kviria.com/key](https://api.kviria.com/key) and click **Create a key**. Copy the `kvr_...` key (shown once).
+
+        Every account includes `600` free turns per day and `60` turns per minute. See [Rate limits and errors](/api/limits).
+      </Tab>
+      <Tab title="MCP (One-click OAuth)">
+        No key required for OAuth MCP clients (Claude, ChatGPT, Claude Code, Cursor). Add `https://api.kviria.com/mcp` and approve access on the connect page. See [MCP server](/api/mcp).
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Send Turn 1 (area search without a GPS pin)">
+    Send the user's message with `request: "ask"` and `words`. Save the returned `state` for the next turn.
+
+    <CodeGroup>
+    ```bash cURL
+    curl -X POST "https://api.kviria.com/v1/agent?agent=my-agent" \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer $KVIRIA_KEY" \
+      -d '{
+        "request": "ask",
+        "words": "a cafe in Williamsburg, Brooklyn",
+        "state": ""
+      }'
+    ```
+
+    ```typescript TypeScript
+    async function askKviria(
+      words: string,
+      state = "",
+      anchor?: { lat: number; lng: number },
+    ) {
+      const res = await fetch("https://api.kviria.com/v1/agent?agent=my-agent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.KVIRIA_KEY}`,
+        },
+        body: JSON.stringify({
+          request: "ask",
+          words,
+          state,
+          ...(anchor ? { anchor } : {}),
+        }),
+      });
+      return res.json();
+    }
+    ```
+
+    ```python Python
+    import os
+    import requests
+
+    def ask_kviria(words: str, state: str = "", anchor: dict | None = None) -> dict:
+        body = {"request": "ask", "words": words, "state": state}
+        if anchor is not None:
+            body["anchor"] = anchor
+        res = requests.post(
+            "https://api.kviria.com/v1/agent",
+            params={"agent": "my-agent"},
+            headers={"Authorization": f"Bearer {os.environ['KVIRIA_KEY']}"},
+            json=body,
+            timeout=20,
+        )
+        return res.json()
+    ```
+    </CodeGroup>
+
+    Trimmed response (`decision: "many"`):
+
+    ```json Response
+    {
+      "decision": "many",
+      "distinguishBy": "street",
+      "candidates": [
+        {
+          "gers": "08f2a100d8cb5d1a0390a5e1b5c6d701",
+          "name": "Devocion",
+          "category": "cafe",
+          "confidence": 0.96,
+          "location": { "lat": 40.71602, "lng": -73.96134 },
+          "address": { "number": "69", "street": "Grand St" }
+        },
+        {
+          "gers": "08f2a100d8cb5d1a0390a5e1b5c6d702",
+          "name": "Oslo Coffee Roasters",
+          "category": "cafe",
+          "confidence": 0.95,
+          "location": { "lat": 40.71645, "lng": -73.95891 },
+          "address": { "number": "133", "street": "Roebling St" }
+        }
+      ],
+      "area": {
+        "id": "area-williamsburg-ny",
+        "name": "Williamsburg",
+        "level": "neighborhood",
+        "parent": ["New York", "New York", "Brooklyn"],
+        "region": "US-NY"
+      },
+      "evidence": [
+        { "test": "area", "result": "pass", "reasonCode": "area_resolved" }
+      ],
+      "state": "AXbU2v9QmZ3k8sJt0LrE4wHn7cYq1pKf6gNa5oTd"
+    }
+    ```
+  </Step>
+
+  <Step title="Send Turn 2 (pick an option using state)">
+    Pass the user's answer back with the returned `state`:
+
+    ```bash cURL
+    curl -X POST "https://api.kviria.com/v1/agent?agent=my-agent" \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer $KVIRIA_KEY" \
+      -d '{
+        "request": "ask",
+        "words": "the first one",
+        "state": "AXbU2v9QmZ3k8sJt0LrE4wHn7cYq1pKf6gNa5oTd"
+      }'
+    ```
+
+    Trimmed response (`decision: "one"`):
+
+    ```json Response
+    {
+      "decision": "one",
+      "target": {
+        "gers": "08f2a100d8cb5d1a0390a5e1b5c6d701",
+        "name": "Devocion",
+        "category": "cafe",
+        "confidence": 0.96,
+        "location": { "lat": 40.71602, "lng": -73.96134 },
+        "address": { "number": "69", "street": "Grand St" }
+      },
+      "anchor": { "lat": 40.71602, "lng": -73.96134 },
+      "evidence": [
+        { "test": "resolve", "result": "pass", "reasonCode": "picked_candidate" }
+      ],
+      "state": "BYcV3w0RnA4l9tKu1MsF5xIo8dZr2qLg7hOb6pUe"
+    }
+    ```
+
+    <Note>
+      When you already have the user's GPS coordinate, include `"anchor": { "lat": 37.76326, "lng": -122.4152 }` on the first turn instead of an area name, and omit `anchor` on follow-up turns unless the user moves.
+    </Note>
+  </Step>
+
+  <Step title="Give your agent the tool schema and system prompt">
+    1. Load the tool definition from [kviria.com/tool-definition.json](https://kviria.com/tool-definition.json).
+    2. Use the system prompt from [kviria.com/skill.md](https://kviria.com/skill.md) so your model calls `kviria` on every location turn, echoes `state` unchanged, and replies strictly from returned facts.
+  </Step>
+</Steps>

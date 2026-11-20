@@ -1,6 +1,7 @@
 ---
 title: Rate limits and errors
 description: Account quotas, GET /v1/account, response headers, and error codes.
+icon: gauge
 ---
 
 ## Quotas and rate limits
@@ -14,22 +15,20 @@ Kviria is free in beta. Limits apply per Kviria account:
 | Account status (`GET /v1/account`) | `60` requests | Per minute | `account_minute_limit` |
 | New accounts (`/key` & `/authorize`) | `20` accounts | Per network per UTC day | Shown on the page |
 
-### What counts toward the daily quota
-
-- Every answered turn (`200 OK`) counts as `1` turn, including follow-up picks, confirmations, `more`, and queries outside coverage (`out_of_coverage`).
-- Invalid requests refused before execution (`400`), authentication failures (`401`), and oversized payloads (`413`) never count toward your daily quota.
-- Calling `GET /v1/account` is read-only and never counts as a turn.
+<Note>
+  Every answered turn (`200 OK`) counts as `1` turn, including follow-up picks, confirmations, `more`, and queries outside coverage (`out_of_coverage`). Invalid requests refused before execution (`400`), authentication failures (`401`), oversized payloads (`413`), and `GET /v1/account` never count toward your daily quota.
+</Note>
 
 ## Check remaining turns (`GET /v1/account`)
 
 Query your account's daily allowance at any time with your Bearer key or OAuth token:
 
-```bash
+```bash Request
 curl "https://api.kviria.com/v1/account" \
   -H "Authorization: Bearer $KVIRIA_KEY"
 ```
 
-```json
+```json Response
 {
   "freeTurns": {
     "perDay": 600,
@@ -68,6 +67,6 @@ Never retry in a tight loop. Wait for the duration in `Retry-After` before sendi
 | `429` | `service_busy` | Wait for `Retry-After` seconds and retry |
 | `500` | `Server Error` | Retry after a short pause |
 
-### Error bodies that preserve `state`
-
-The `400` responses for `invalid_request`, `invalid_body`, `unsupported_field`, `transcript_removed`, `anchor_required`, and `invalid_state` return `{ error, message, state }`. Pass that `state` into your next call so the conversation continues without losing context (on `invalid_state`, `state` is `""`).
+<Note>
+  **State preservation on `400`:** Responses for `invalid_request`, `invalid_body`, `unsupported_field`, `transcript_removed`, `anchor_required`, and `invalid_state` return `{ error, message, state }`. Pass that `state` into your next call so the conversation continues without losing context (on `invalid_state`, `state` is `""`).
+</Note>

@@ -1,27 +1,28 @@
 ---
 title: Data and FAQ
 description: Coverage, common questions, and map data attribution.
+icon: database
 ---
 
-## FAQ
+## Frequently asked questions
 
-### What area does Kviria cover?
+<AccordionGroup>
+  <Accordion title="What area does Kviria cover?">
+    Kviria covers the **contiguous United States** (latitude `24.4` to `49.5`, longitude `-125.0` to `-66.8`). Queries outside coverage return `decision: "none"` with `out_of_coverage` in `evidence` and count toward your daily turns.
+  </Accordion>
 
-Kviria covers the **contiguous United States** (latitude `24.4` to `49.5`, longitude `-125.0` to `-66.8`). Queries outside coverage return `decision: "none"` with `out_of_coverage` in `evidence` and count toward your daily turns.
+  <Accordion title="Is Kviria free?">
+    Yes. Kviria is in free beta. Every account receives `600` turns per day (reset at midnight UTC) and `60` turns per minute, with no payment option. See [Rate limits and errors](/api/limits).
+  </Accordion>
 
-### Is Kviria free?
+  <Accordion title="Does Kviria store conversations?">
+    No. Kviria keeps no conversation text on its servers between turns. The signed `state` string in each response carries the turn context, and your agent sends it back on the next call. See the [Privacy Policy](https://kviria.com/privacy).
+  </Accordion>
 
-Yes. Kviria is in free beta. Every account receives `600` turns per day (reset at midnight UTC) and `60` turns per minute, with no payment option. See [Rate limits and errors](/api/limits).
-
-### Does Kviria store conversations?
-
-No. Kviria keeps no conversation text on its servers between turns. The signed `state` string in each response carries the turn context, and your agent sends it back on the next call. See the [Privacy Policy](https://kviria.com/privacy).
-
-### Do I need to parse the user's message into fields myself?
-
-No. Send `request: "ask"` with the user's message in `words`, and Kviria resolves the area, category, street, address, or follow-up choice automatically. If your agent already extracts structured slots, you can send structured requests (`search`, `find`, `near`, `across`, `next_to`, `corner`, `street_end`, `resolve`, `pick`, `confirm`, `more`) to the same endpoint.
-
----
+  <Accordion title="Do I need to parse the user's message into fields myself?">
+    No. Send `request: "ask"` with the user's message in `words`, and Kviria resolves the area, category, street, address, or follow-up choice automatically. If your agent already extracts structured slots, you can send structured requests (`search`, `find`, `near`, `across`, `next_to`, `corner`, `street_end`, `resolve`, `pick`, `confirm`, `more`) to the same endpoint.
+  </Accordion>
+</AccordionGroup>
 
 ## Map data attribution
 

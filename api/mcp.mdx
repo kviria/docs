@@ -1,0 +1,62 @@
+---
+title: MCP server
+description: Connect Kviria to Claude, ChatGPT, Cursor, or any MCP client over streamable HTTP.
+icon: plug
+---
+
+```text Server URL
+https://api.kviria.com/mcp
+```
+
+Kviria's Model Context Protocol (MCP) server exposes one tool, `kviria`, over streamable HTTP. It accepts the exact same arguments and returns the exact same JSON decisions as [`POST /v1/agent`](/api/agent).
+
+## Connect your client
+
+<Tabs>
+  <Tab title="Claude Code">
+    Connect in one command using OAuth (no API key needed):
+
+    ```bash
+    claude mcp add --transport http kviria https://api.kviria.com/mcp
+    ```
+  </Tab>
+
+  <Tab title="Cursor / VS Code">
+    Add Kviria to your `mcp.json` configuration (OAuth opens automatically on first use):
+
+    ```json mcp.json
+    {
+      "mcpServers": {
+        "kviria": {
+          "url": "https://api.kviria.com/mcp"
+        }
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Claude.ai / ChatGPT">
+    Add `https://api.kviria.com/mcp` as a custom connector and click **Allow** on the Kviria connect page.
+  </Tab>
+
+  <Tab title="API key header">
+    For headless agents or MCP clients that send static headers, pass a key from [api.kviria.com/key](https://api.kviria.com/key):
+
+    ```json mcp.json
+    {
+      "mcpServers": {
+        "kviria": {
+          "url": "https://api.kviria.com/mcp",
+          "headers": {
+            "Authorization": "Bearer kvr_..."
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  **Notes for MCP callers:** Omit `anchor` on follow-up turns when the user has not moved (never send an empty `anchor: {}` object). Copy the `state` string from the tool result into the next call. MCP requests do not need `x-kviria-agent`.
+</Note>

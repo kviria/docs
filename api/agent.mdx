@@ -1,9 +1,10 @@
 ---
 title: Agent endpoint
 description: Request fields and response schema for POST /v1/agent.
+icon: terminal
 ---
 
-```text
+```text Endpoint
 POST https://api.kviria.com/v1/agent
 Authorization: Bearer kvr_...
 x-kviria-agent: my-agent
@@ -13,7 +14,7 @@ Max body: 16 KB
 
 Every call requires a Bearer key (from [api.kviria.com/key](https://api.kviria.com/key)) or an OAuth token, plus an agent identifier (`3` to `64` lowercase letters, digits, or hyphens) via `x-kviria-agent` or `?agent=`.
 
-The full JSON Schema is published at [kviria.com/tool-definition.json](https://kviria.com/tool-definition.json) and the OpenAPI specification at [api.kviria.com/openapi.json](https://api.kviria.com/openapi.json). For quotas, headers, and error codes, see [Rate limits and errors](/api/limits).
+The full JSON Schema is published at [kviria.com/tool-definition.json](https://kviria.com/tool-definition.json) and the OpenAPI 3.1 specification at [api.kviria.com/openapi.json](https://api.kviria.com/openapi.json). For quotas, headers, and error codes, see [Rate limits and errors](/api/limits).
 
 ## Request body
 
@@ -69,6 +70,6 @@ Each `target` (and each item in `candidates`) includes `gers`, `name`, `category
 - `corner`: intersecting streets when the place sits on a corner.
 - `nextTo`, `sameBuilding`, `tallBuilding`, `acrossFromYou`, `acrossStreet`, `relative`, `baseDistanceM`.
 
-## Compatibility
-
-New response fields and new optional request fields are non-breaking additions. Configure your client to ignore unknown JSON fields.
+<Note>
+  **Compatibility:** New response fields and new optional request fields are non-breaking additions. Configure your client to ignore unknown JSON fields.
+</Note>

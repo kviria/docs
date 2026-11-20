@@ -1,0 +1,18 @@
+/* Subtle Kviria dark editorial refinements: sharper corners and quieter inline code pills. */
+:root {
+  --radius: 0.25rem;
+}
+
+.prose :not(pre) > code {
+  border-radius: 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 0.125rem 0.35rem;
+  font-size: 0.85em;
+}
+
+.card,
+pre,
+[data-component-part="card"] {
+  border-radius: 0.375rem;
+}

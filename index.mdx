@@ -1,0 +1,96 @@
+---
+title: Overview
+description: Location understanding for voice and chat agents across the United States.
+icon: book-open
+---
+
+Kviria resolves what a user says about a location, around their current position (*"a cafe across from the bank"*) or in an area they name (*"espresso in Williamsburg, Brooklyn"*, *"597 Greene Ave, Brooklyn"*), to one verified place, door, or street corner.
+
+It returns structured JSON facts only; your agent speaks the reply.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Connect via MCP or send your first HTTP call in two minutes.
+  </Card>
+  <Card title="Agent endpoint" icon="terminal" href="/api/agent">
+    Full request fields, response schema, and target properties for `POST /v1/agent`.
+  </Card>
+  <Card title="MCP server" icon="plug" href="/api/mcp">
+    One-click OAuth setup for Claude, ChatGPT, Claude Code, and Cursor.
+  </Card>
+  <Card title="Rate limits and errors" icon="gauge" href="/api/limits">
+    Free beta quotas (`600` turns/day), `GET /v1/account`, and error codes.
+  </Card>
+</CardGroup>
+
+## How a multi-turn conversation works
+
+Every call sends `request` (`"ask"` with the user's message in `words`, or structured fields) plus the signed `state` from the previous response.
+
+<Steps>
+  <Step title="Turn 1: Ask">
+    User says: *"a cafe in Williamsburg, Brooklyn"*
+
+    ```json Request
+    {
+      "request": "ask",
+      "words": "a cafe in Williamsburg, Brooklyn",
+      "state": ""
+    }
+    ```
+
+    Kviria returns `decision: "many"` with matching places, `distinguishBy: "street"`, and a signed `state`.
+  </Step>
+  <Step title="Turn 2: Pick">
+    User says: *"the first one"*
+
+    ```json Request
+    {
+      "request": "ask",
+      "words": "the first one",
+      "state": "<STATE_1>"
+    }
+    ```
+
+    Kviria returns `decision: "one"` with `Devocion`, `69 Grand St`, its verified coordinate `{ lat, lng }`, and a new `state`.
+  </Step>
+  <Step title="Turn 3: Follow up">
+    User says: *"what is across the street from it?"*
+
+    ```json Request
+    {
+      "request": "ask",
+      "words": "what is across the street from it?",
+      "state": "<STATE_2>"
+    }
+    ```
+
+    Kviria uses the settled place carried in `state` and returns the places across Grand St.
+  </Step>
+</Steps>
+
+## Five decisions
+
+Every turn returns one `decision` and a new `state`:
+
+| Decision | Meaning | Your agent's move |
+|---|---|---|
+| `one` | The place is settled | State the name, distance, and facts from `target` |
+| `one_unconfirmed` | Partial name match (location held until confirmed) | Ask the user to confirm the place (`yes` or `no`) |
+| `many` | Multiple places match | Ask which one using `distinguishBy` (at most 3 options) |
+| `unclear` | Needs clarification, a heading, or an area choice (`areaOptions`) | Ask the question or offer the 3 `areaOptions` |
+| `none` | Nothing matched in the map data | Tell the user what could not be found and ask for another detail |
+
+## Agent contracts
+
+<CardGroup cols={3}>
+  <Card title="skill.md" icon="file-text" href="https://kviria.com/skill.md">
+    System prompt and caller rules for agents.
+  </Card>
+  <Card title="tool-definition.json" icon="braces" href="https://kviria.com/tool-definition.json">
+    Authoritative JSON Schema for tool calling and MCP.
+  </Card>
+  <Card title="openapi.json" icon="globe" href="https://api.kviria.com/openapi.json">
+    OpenAPI 3.1 machine specification.
+  </Card>
+</CardGroup>

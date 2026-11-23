@@ -10,9 +10,10 @@ Authorization: Bearer kvr_...
 x-kviria-agent: my-agent
 Content-Type: application/json
 Max body: 16 KB
+MCP tool: kviria
 ```
 
-Every call requires a Bearer key (from [api.kviria.com/key](https://api.kviria.com/key)) or an OAuth token, plus an agent identifier (`3` to `64` lowercase letters, digits, or hyphens) via `x-kviria-agent` or `?agent=`.
+Every call requires a Bearer key (from [api.kviria.com/key](https://api.kviria.com/key)) or an OAuth token, plus an agent identifier (`3` to `64` lowercase letters, digits, or hyphens) via `x-kviria-agent` or `?agent=` (`x-kviria-agent` is required on `/v1/agent` only; `/v1/profile`, `/v1/batch`, and `/mcp` do not require it).
 
 The full JSON Schema is published at [kviria.com/tool-definition.json](https://kviria.com/tool-definition.json) and the OpenAPI 3.1 specification at [api.kviria.com/openapi.json](https://api.kviria.com/openapi.json). For quotas, headers, and error codes, see [Rate limits and errors](/api/limits).
 
@@ -23,7 +24,7 @@ Send the user's message directly with `request: "ask"` and `words`, or send stru
 | Field | Type | When | Description |
 |---|---|---|---|
 | `request` | string | Required | `ask`, `find`, `search`, `near`, `across`, `next_to`, `corner`, `street_end`, `resolve`, `pick`, `confirm`, or `more` |
-| `words` | string | `ask`, `resolve` | The user's message (`ask`) or named target in an area (`resolve`), up to `200` characters |
+| `words` | string | `ask`, `resolve` | The user's message (`ask`) or named target in an area (`resolve`), up to `500` characters |
 | `state` | string | Every call | The `state` string from the previous response (`""` on the first turn) |
 | `anchor` | `{ lat, lng }` | First turn (position) | The user's current WGS 84 position. Omit on follow-up turns unless the user moved |
 | `area` | string | First turn (area) | Area to search (`"Brooklyn"`, `"Austin, TX"`) when not searching around a GPS pin. Never send with `anchor` |
@@ -33,7 +34,7 @@ Send the user's message directly with `request: "ask"` and `words`, or send stru
 | `streets` | `[string, string]` | `corner`, `find`, `near` | The two intersecting streets of a corner |
 | `street` | string | `across`, `next_to`, `street_end` | Street named by the user |
 | `streetNot` | string | `search`, `near`, `across`, `next_to` | Street excluded by the user (never combine with `street`) |
-| `side` | `"left" \| "right"` | `next_to` | Side of the named place as seen facing its door |
+| `side` | `"left" \| "right"` | `next_to` | Side of the named place as seen facing its entrance |
 | `facing` | object | Optional | What the user faces (`name`, `address`, `streets`, or `street`) |
 | `toward` | string | Optional | Direction relative to the user: `"ahead"`, `"behind"`, `"left"`, or `"right"` |
 | `pick` | integer | `pick` | 1-based index chosen from the last candidate list or `areaOptions` |

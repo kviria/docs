@@ -7,13 +7,13 @@ icon: rocket
 <Steps>
   <Step title="Connect or get a key">
     <Tabs>
+      <Tab title="MCP (One-click OAuth)">
+        No key or password is required for OAuth MCP clients (Claude, ChatGPT, Perplexity, Gemini, Cursor). Add `https://api.kviria.com/mcp` and click **Allow** on the connect page to expose `kviria`, `kviria_profile`, and `kviria_batch`, or paste `Follow https://kviria.com/setup.md to connect Kviria to my agent or project.` into your AI assistant. See [MCP server](/api/mcp).
+      </Tab>
       <Tab title="HTTP API (Key)">
         Open [api.kviria.com/key](https://api.kviria.com/key) and click **Create a key**. Copy the `kvr_...` key (shown once).
 
-        Every account includes `600` free turns per day and `60` turns per minute. See [Rate limits and errors](/api/limits).
-      </Tab>
-      <Tab title="MCP (One-click OAuth)">
-        No key required for OAuth MCP clients (Claude, ChatGPT, Claude Code, Cursor). Add `https://api.kviria.com/mcp` and approve access on the connect page. See [MCP server](/api/mcp).
+        Every account includes `600` free credits per day (`1` credit for `/v1/agent`, `1` to `5` credits for `/v1/profile` and `/v1/batch`) and `60` requests per minute. See [Rate limits and errors](/api/limits).
       </Tab>
     </Tabs>
   </Step>
@@ -154,8 +154,9 @@ icon: rocket
     </Note>
   </Step>
 
-  <Step title="Give your agent the tool schema and system prompt">
-    1. Load the tool definition from [kviria.com/tool-definition.json](https://kviria.com/tool-definition.json).
-    2. Use the system prompt from [kviria.com/skill.md](https://kviria.com/skill.md) so your model calls `kviria` on every location turn, echoes `state` unchanged, and replies strictly from returned facts.
+  <Step title="Profile locations or sequence multi-stop visits">
+    - Use [`POST /v1/profile`](/api/profile) (`kviria_profile`) to audit street class, arterial distance, building context, walking amenities, and location claims across `1` to `5` US places in one call.
+    - Use [`POST /v1/batch`](/api/batch) (`kviria_batch`) to ground a list of `2` to `15` stops, order a walking itinerary, or compute a fair meeting point for `2` to `5` people.
+    - Load the agent system prompt from [kviria.com/skill.md](https://kviria.com/skill.md) and schemas from [api.kviria.com/openapi.json](https://api.kviria.com/openapi.json).
   </Step>
 </Steps>

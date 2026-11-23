@@ -1,6 +1,6 @@
 ---
 title: MCP server
-description: Connect Kviria to Claude, ChatGPT, Cursor, or any MCP client over streamable HTTP.
+description: Connect Kviria to Claude, ChatGPT, Perplexity, Gemini, Cursor, or any MCP client over streamable HTTP.
 icon: plug
 ---
 
@@ -8,23 +8,71 @@ icon: plug
 https://api.kviria.com/mcp
 ```
 
-Kviria's Model Context Protocol (MCP) server exposes one tool, `kviria`, over streamable HTTP. It accepts the exact same arguments and returns the exact same JSON decisions as [`POST /v1/agent`](/api/agent).
+Kviria's Model Context Protocol (MCP) server (`2.1.0`) runs over **streamable HTTP** and exposes **three read-only tools** backed by the exact same contracts, limits, and validation as the HTTP API:
+
+| Tool | Equivalent endpoint | What it does |
+|---|---|---|
+| `kviria` | [`POST /v1/agent`](/api/agent) | Resolve a place, address, or intersection; handle nearby, across, next-to, and multi-turn follow-ups |
+| `kviria_profile` | [`POST /v1/profile`](/api/profile) | Profile and compare street class, arterial distance, building context, walking amenities, and location claims for `1`–`5` US locations |
+| `kviria_batch` | [`POST /v1/batch`](/api/batch) | Ground `2`–`15` stops, order a walking itinerary, or compute a fair meeting point for `2`–`5` people |
+
+All three tools advertise read-only MCP tool annotations (`readOnlyHint: true`, `destructiveHint: false`, `openWorldHint: false`; `idempotentHint: true` on stateless `kviria_profile` and `kviria_batch`, `false` on stateful `kviria`) and return structured JSON content (`structuredContent`) alongside plain JSON text.
+
+## Authentication (OAuth 2.1 or API key)
+
+- **OAuth 2.1 with PKCE (`S256`):** Unauthenticated calls to `https://api.kviria.com/mcp` return `401 Unauthorized` with a `WWW-Authenticate` header pointing to `https://api.kviria.com/.well-known/oauth-protected-resource/mcp`. Kviria supports **Client ID Metadata Documents (CIMD)** (`client_id_metadata_document_supported: true`) and **Dynamic Client Registration** (`/oauth/register`).
+- **One-click connect:** Approving access on `https://api.kviria.com/authorize` creates a free account (`600` credits/day) in one click — no email, password, or OTP required.
+- **Static API key:** Clients that send fixed headers can pass `Authorization: Bearer kvr_...` from [api.kviria.com/key](https://api.kviria.com/key).
+
+## Fastest setup (one-line onboarding prompt)
+
+Paste this prompt into Claude Code, Cursor, Codex, or your AI assistant to configure Kviria automatically:
+
+```text Onboarding prompt
+Follow https://kviria.com/setup.md to connect Kviria to my agent or project.
+```
 
 ## Connect your client
 
 <Tabs>
-  <Tab title="Claude Code">
-    Connect in one command using OAuth (no API key needed):
+  <Tab title="Claude">
+    **Claude (Web, Desktop & Mobile):** Add `https://api.kviria.com/mcp` as a custom connector and click **Allow** on the Kviria connect page.
+
+    **Claude Code (for developers building web/mobile apps):**
 
     ```bash
     claude mcp add --transport http kviria https://api.kviria.com/mcp
     ```
+
+    Plugin manifests (`.claude-plugin/plugin.json`) and the MCP skill live in [github.com/kviria/kviria-plugin](https://github.com/kviria/kviria-plugin).
+  </Tab>
+
+  <Tab title="ChatGPT">
+    **ChatGPT (Web & Mobile):** Add `https://api.kviria.com/mcp` as a remote MCP connector in ChatGPT Settings and approve access on the Kviria connect page (OAuth 2.1 discovery and CIMD work automatically).
+
+    **Codex:**
+
+    ```bash
+    codex mcp add kviria --url https://api.kviria.com/mcp
+    ```
+
+    Portable plugin manifests (`plugin.json`, `.mcp.json`, and `skills/kviria/SKILL.md`) are published in [github.com/kviria/kviria-plugin](https://github.com/kviria/kviria-plugin).
+  </Tab>
+
+  <Tab title="Perplexity">
+    Register `https://api.kviria.com/mcp` as a remote Streamable HTTP connector under **Connectors** using OAuth or a Bearer key from [api.kviria.com/key](https://api.kviria.com/key).
+  </Tab>
+
+  <Tab title="Gemini">
+    **Gemini (Web & Mobile — Google Connected Apps):** Kviria serves a single global HTTPS streamable HTTP endpoint (`https://api.kviria.com/mcp`) with OAuth 2.1 PKCE (`S256`) and read-only tool annotations.
   </Tab>
 
   <Tab title="Cursor / VS Code">
-    Add Kviria to your `mcp.json` configuration (OAuth opens automatically on first use):
+    Add Kviria to your workspace config (OAuth opens automatically on first use):
 
-    ```json mcp.json
+    **Cursor (`.cursor/mcp.json`):**
+
+    ```json .cursor/mcp.json
     {
       "mcpServers": {
         "kviria": {
@@ -33,10 +81,19 @@ Kviria's Model Context Protocol (MCP) server exposes one tool, `kviria`, over st
       }
     }
     ```
-  </Tab>
 
-  <Tab title="Claude.ai / ChatGPT">
-    Add `https://api.kviria.com/mcp` as a custom connector and click **Allow** on the Kviria connect page.
+    **VS Code (`.vscode/mcp.json`):**
+
+    ```json .vscode/mcp.json
+    {
+      "servers": {
+        "kviria": {
+          "type": "http",
+          "url": "https://api.kviria.com/mcp"
+        }
+      }
+    }
+    ```
   </Tab>
 
   <Tab title="API key header">
@@ -57,6 +114,14 @@ Kviria's Model Context Protocol (MCP) server exposes one tool, `kviria`, over st
   </Tab>
 </Tabs>
 
+## Discovery and manifests
+
+- Server card: `https://kviria.com/.well-known/mcp/server-card.json`
+- Protected resource metadata (RFC 9728): `https://api.kviria.com/.well-known/oauth-protected-resource/mcp`
+- Authorization server metadata (RFC 8414): `https://api.kviria.com/.well-known/oauth-authorization-server`
+- Official MCP Registry: `com.kviria/kviria` (`2.1.0`)
+- Plugin repository: [github.com/kviria/kviria-plugin](https://github.com/kviria/kviria-plugin)
+
 <Note>
-  **Notes for MCP callers:** Omit `anchor` on follow-up turns when the user has not moved (never send an empty `anchor: {}` object). Copy the `state` string from the tool result into the next call. MCP requests do not need `x-kviria-agent`.
+  **Notes for MCP callers:** When calling `kviria`, omit `anchor` on follow-up turns if the user has not moved (never send an empty `anchor: {}` object), and pass the returned `state` string into the next `kviria` call. `kviria_profile` and `kviria_batch` are stateless single-shot tools. MCP requests do not need `x-kviria-agent`.
 </Note>

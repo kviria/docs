@@ -1,0 +1,194 @@
+---
+title: Profile endpoint
+description: Street-level neighborhood dossiers, claim checks, and side-by-side comparisons for 1 to 5 US locations.
+icon: map-pin
+---
+
+```text Endpoint
+POST https://api.kviria.com/v1/profile
+Authorization: Bearer kvr_...
+Content-Type: application/json
+Max body: 16 KB
+MCP tool: kviria_profile
+```
+
+`POST /v1/profile` (exposed over MCP as `kviria_profile`) returns street-level physical facts for `1` to `5` US locations in parallel, plus a fact-first `compare` summary when `2` or more locations resolve.
+
+Every call charges `1` credit per requested location (`1` to `5` credits). See [Rate limits and errors](/api/limits).
+
+## Request body
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `locations` | array (`1`–`5`) | Yes | Locations to profile. Each item accepts optional `label` (`<= 80` chars) and **exactly one** of `anchor` (`{ lat, lng }`), `address` (`{ number, street }` + optional `area`), or `place` (`{ name }` + optional `area`). Do not combine `anchor` with `area`. |
+| `radiusM` | `250 \| 500` | No | Amenity scan radius in meters (default `500`; sparse areas may expand automatically). |
+| `domains` | string[] | No | Subset of amenity domains to scan (defaults to all `9`): `grocery`, `cafe`, `restaurant`, `bar`, `park`, `pharmacy`, `fitness`, `school`, `transit`. |
+| `claims` | object | No | Optional physical claim checks evaluated per location: `quietStreet` (`boolean`) and `maxWalkM` (map of domain -> threshold meters, `50`–`2000`). Any domain named in `maxWalkM` is automatically included in `domains`. |
+
+## Example: checking a "quiet street" claim
+
+```bash cURL
+curl -X POST "https://api.kviria.com/v1/profile" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $KVIRIA_KEY" \
+  -d '{
+    "locations": [
+      {
+        "label": "Hotel San Jose",
+        "address": { "number": "1316", "street": "South Congress Ave" },
+        "area": "Austin, TX"
+      },
+      {
+        "label": "Mission House",
+        "address": { "number": "2128", "street": "Folsom St" },
+        "area": "San Francisco, CA"
+      }
+    ],
+    "radiusM": 500,
+    "domains": ["cafe", "grocery", "park", "transit"],
+    "claims": {
+      "quietStreet": true,
+      "maxWalkM": { "cafe": 300, "grocery": 500 }
+    }
+  }'
+```
+
+Trimmed response:
+
+```json Response
+{
+  "radiusM": 500,
+  "domains": ["grocery", "cafe", "park", "transit"],
+  "locations": [
+    {
+      "index": 0,
+      "label": "Hotel San Jose",
+      "status": "ok",
+      "resolved": {
+        "lat": 30.24998,
+        "lng": -97.74954,
+        "name": "1316 S CONGRESS AVE",
+        "area": {
+          "id": "area-austin-tx",
+          "name": "Austin",
+          "level": "city",
+          "parent": ["Texas"],
+          "region": "US-TX"
+        }
+      },
+      "effectiveRadiusM": 500,
+      "street": {
+        "name": "South Congress Avenue",
+        "class": "primary",
+        "distanceM": 38,
+        "isArterial": true,
+        "nearestArterial": {
+          "name": "South Congress Avenue",
+          "class": "primary",
+          "distanceM": 38
+        },
+        "cornerDistanceM": 64
+      },
+      "block": {
+        "radiusM": 250,
+        "doors": {
+          "total": 96,
+          "classed": 18,
+          "residential": 3,
+          "nonResidential": 15,
+          "residentialShare": 0.17
+        },
+        "buildings": {
+          "total": 112,
+          "knownHeightCount": 41,
+          "medianHeightM": 6.4,
+          "p90HeightM": 11.2,
+          "maxHeightM": 18.0
+        },
+        "crossingsCount500m": 27
+      },
+      "amenities": {
+        "cafe": {
+          "count250m": 4,
+          "count500m": 11,
+          "nearest": {
+            "gers": "08f489...",
+            "name": "Jo's Coffee",
+            "category": "cafe",
+            "distanceM": 22,
+            "walkM": 31
+          }
+        }
+      },
+      "claimsCheck": [
+        {
+          "claim": "quietStreet",
+          "verdict": "contradicted",
+          "measured": {
+            "streetClass": "primary",
+            "isArterial": true,
+            "nearestArterialM": 38
+          }
+        },
+        {
+          "claim": "maxWalkM.cafe",
+          "verdict": "supported",
+          "measured": { "walkM": 31, "thresholdM": 300 }
+        }
+      ],
+      "evidence": [
+        { "test": "profile", "result": "pass", "reasonCode": "profile.computed" }
+      ]
+    }
+  ],
+  "compare": {
+    "quietestStreet": {
+      "index": 1,
+      "label": "Mission House",
+      "streetClass": "tertiary",
+      "nearestArterialM": 186
+    },
+    "farthestFromArterial": {
+      "index": 1,
+      "label": "Mission House",
+      "distanceM": 186
+    },
+    "mostAmenities500m": {
+      "index": 1,
+      "label": "Mission House",
+      "totalCount": 35
+    },
+    "highestResidentialShare": {
+      "index": 1,
+      "label": "Mission House",
+      "share": 0.6
+    },
+    "lowestMedianHeightM": {
+      "index": 0,
+      "label": "Hotel San Jose",
+      "heightM": 6.4
+    },
+    "closestByDomain": {
+      "cafe": { "index": 1, "label": "Mission House", "name": "Stable Cafe", "distanceM": 8, "walkM": 12 }
+    }
+  },
+  "evidence": [
+    { "test": "profile", "result": "pass", "reasonCode": "profile.all_resolved" }
+  ]
+}
+```
+
+## Response fields
+
+| Field | Description |
+|---|---|
+| `locations[]` | One result per input in order. `status` is `"ok"`, or `"ambiguous"` / `"not_found"` / `"out_of_coverage"` with a `reason` string (and up to `3` `candidates` when ambiguous). |
+| `street` | Frontage street `name`, road `class`, perpendicular `distanceM`, `isArterial` (`motorway`, `trunk`, `primary`, `secondary`), `nearestArterial`, and `cornerDistanceM`. |
+| `block` | `250` m block statistics (`doors`, `buildings`, `crossingsCount500m`). `residentialShare` and building height percentiles return `null` when local sample size is too small. |
+| `amenities` | Per requested domain: `count250m`, `count500m`, and `nearest` place with straight-line `distanceM` and street-network `walkM`. |
+| `claimsCheck` | Present when `claims` was sent. Each verdict is `"supported"`, `"contradicted"`, or `"insufficient_data"` alongside the exact `measured` values. `quietStreet` evaluates frontage street class and proximity to the nearest arterial road. |
+| `compare` | Present when `2` or more locations resolve: fact-first winners for `quietestStreet`, `farthestFromArterial`, `mostAmenities500m`, `highestResidentialShare`, `lowestMedianHeightM`, and `closestByDomain`. |
+
+<Note>
+  **Ambiguity handling:** If a named place matches multiple locations or an area name is ambiguous, that entry returns `status: "ambiguous"` with up to `3` `candidates` (name, detail, and location) instead of guessing, while other locations in the same call still resolve normally.
+</Note>

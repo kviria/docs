@@ -1,27 +1,35 @@
 ---
 title: Rate limits and errors
-description: Account quotas, GET /v1/account, response headers, and error codes.
+description: Account credits, credit weights, GET /v1/account, response headers, error codes, and support.
 icon: gauge
 ---
 
-## Quotas and rate limits
+## Credits and rate limits
 
-Kviria is free in beta. Limits apply per Kviria account:
+Kviria is free to use with no credit card or payment option. Limits apply per Kviria account across HTTP endpoints and MCP:
 
 | Limit | Allowance | Window | Error code on `429` |
 |---|---|---|---|
-| Daily turns (`POST /v1/agent` & `/mcp`) | `600` turns | Per UTC day (resets at `00:00 UTC`) | `daily_limit_reached` |
-| Minute turns (`POST /v1/agent` & `/mcp`) | `60` turns | Per minute | `turn_minute_limit` |
+| Daily credits (`/v1/agent`, `/v1/profile`, `/v1/batch`, `/mcp`) | `600` credits | Per UTC day (resets at `00:00 UTC`) | `daily_limit_reached` |
+| Minute requests (`/v1/agent`, `/v1/profile`, `/v1/batch`, `/mcp`) | `60` requests | Per minute | `turn_minute_limit` |
 | Account status (`GET /v1/account`) | `60` requests | Per minute | `account_minute_limit` |
 | New accounts (`/key` & `/authorize`) | `20` accounts | Per network per UTC day | Shown on the page |
 
+### Credit weight per call
+
+| Endpoint / MCP tool | Credits charged | Range |
+|---|---|---|
+| `POST /v1/agent` (`kviria`) | `1` credit per turn | `1` |
+| `POST /v1/profile` (`kviria_profile`) | `1` credit per requested location | `1`–`5` |
+| `POST /v1/batch` (`kviria_batch`) | `min(5, ceil((items + candidates) / 3))` credits | `1`–`5` |
+
 <Note>
-  Every answered turn (`200 OK`) counts as `1` turn, including follow-up picks, confirmations, `more`, and queries outside coverage (`out_of_coverage`). Invalid requests refused before execution (`400`), authentication failures (`401`), oversized payloads (`413`), and `GET /v1/account` never count toward your daily quota.
+  Every answered request (`200 OK`) counts its credit weight, including follow-up picks, confirmations, `more`, and queries outside coverage (`out_of_coverage`). Invalid requests refused before execution (`400`), authentication failures (`401`), oversized payloads (`413`), and `GET /v1/account` never count toward your daily credits.
 </Note>
 
-## Check remaining turns (`GET /v1/account`)
+## Check remaining credits (`GET /v1/account`)
 
-Query your account's daily allowance at any time with your Bearer key or OAuth token:
+Query your account's daily allowance at any time with your Bearer key or OAuth token (reported under `freeTurns` for backward compatibility):
 
 ```bash Request
 curl "https://api.kviria.com/v1/account" \
@@ -34,7 +42,7 @@ curl "https://api.kviria.com/v1/account" \
     "perDay": 600,
     "usedToday": 42,
     "leftToday": 558,
-    "resetsAt": "2026-11-21T00:00:00Z"
+    "resetsAt": "2026-11-24T00:00:00Z"
   }
 }
 ```
@@ -46,8 +54,8 @@ When a request is rate-limited (`429`), Kviria returns:
 | Header | Present on | Meaning |
 |---|---|---|
 | `Retry-After` | All `429` responses | Seconds to wait before retrying |
-| `X-RateLimit-Limit-Day` | `429 daily_limit_reached` | Your account's daily turn allowance (`600`) |
-| `X-RateLimit-Remaining-Day` | `429 daily_limit_reached` | Remaining turns for the current UTC day (`0`) |
+| `X-RateLimit-Limit-Day` | `429 daily_limit_reached` | Your account's daily credit allowance (`600`) |
+| `X-RateLimit-Remaining-Day` | `429 daily_limit_reached` | Remaining credits for the current UTC day |
 
 Never retry in a tight loop. Wait for the duration in `Retry-After` before sending the next request.
 
@@ -63,10 +71,17 @@ Never retry in a tight loop. Wait for the duration in `Retry-After` before sendi
 | `401` | `unauthorized` | Send a valid `kvr_...` key from [api.kviria.com/key](https://api.kviria.com/key) or connect via OAuth |
 | `413` | `payload_too_large` | Keep request body under `16 KB` (`64 KB` on `/mcp`) |
 | `429` | `turn_minute_limit`, `account_minute_limit` | Wait for `Retry-After` seconds (`60` requests/min limit) |
-| `429` | `daily_limit_reached` | Daily `600`-turn limit reached; wait until `00:00 UTC` (`Retry-After`) |
+| `429` | `daily_limit_reached` | Daily `600`-credit limit reached; wait until `00:00 UTC` (`Retry-After`) |
 | `429` | `service_busy` | Wait for `Retry-After` seconds and retry |
 | `500` | `Server Error` | Retry after a short pause |
 
 <Note>
-  **State preservation on `400`:** Responses for `invalid_request`, `invalid_body`, `unsupported_field`, `transcript_removed`, `anchor_required`, and `invalid_state` return `{ error, message, state }`. Pass that `state` into your next call so the conversation continues without losing context (on `invalid_state`, `state` is `""`).
+  **State preservation on `/v1/agent` `400`:** Responses for `invalid_request`, `invalid_body`, `unsupported_field`, `transcript_removed`, `anchor_required`, and `invalid_state` return `{ error, message, state }`. Pass that `state` into your next call so the conversation continues without losing context (on `invalid_state`, `state` is `""`).
 </Note>
+
+## Support and policies
+
+- **Support:** [hello@kviria.com](mailto:hello@kviria.com)
+- **Service status:** [status.kviria.com](https://status.kviria.com)
+- **Privacy Policy:** [kviria.com/privacy](https://kviria.com/privacy)
+- **Terms of Service:** [kviria.com/terms](https://kviria.com/terms)

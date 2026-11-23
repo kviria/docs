@@ -1,0 +1,172 @@
+---
+title: Batch endpoint
+description: Ground lists of places, cluster and sequence walking itineraries, or find fair meeting points across US locations.
+icon: layers
+---
+
+```text Endpoint
+POST https://api.kviria.com/v1/batch
+Authorization: Bearer kvr_...
+Content-Type: application/json
+Max body: 16 KB
+MCP tool: kviria_batch
+```
+
+`POST /v1/batch` (exposed over MCP as `kviria_batch`) resolves multiple US places or addresses in parallel and computes walking clusters, non-zigzag visit orders, or fair meeting points.
+
+Every call charges `1` credit per `3` requested items and candidates (`1` to `5` credits). See [Rate limits and errors](/api/limits).
+
+## Modes
+
+| Mode | Items | Purpose |
+|---|---|---|
+| `"ground"` | `2`–`15` | Resolve each stop to coordinates, flag ambiguous or multi-branch names, compute a pairwise distance/walk matrix, and group nearby stops into walking clusters (`clusters` + `outliers`). |
+| `"sequence"` | `2`–`15` | Everything in `"ground"` plus an ordered non-zigzag `sequence` (`order`, `legs`, `totalDistanceM`, `totalWalkM`), optionally anchored at a `start` coordinate. |
+| `"meet"` | `2`–`5` | Compute a fair meeting zone (`geometricMedian`, `minimaxCenter`, and active dining/cafe `hub`) and return up to `5` venue `suggestions` with per-participant `distanceM` and `walkM`. |
+
+## Request body
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `mode` | `"ground" \| "sequence" \| "meet"` | Yes | Batch operation mode. |
+| `items` | array | Yes | `2`–`15` items (`2`–`5` for `meet`). Each item accepts optional unique `id` (`<= 64` chars, defaults to `item_1`…) and **exactly one** of `anchor` (`{ lat, lng }`), `address` (`{ number, street }`), `name` (`string`), or `place` (`{ name }`), plus optional per-item `area`. Never combine `anchor` with `area` on the same item. |
+| `area` | string | No | Default US area (`"San Francisco, CA"`, `"Manhattan, NY"`) applied to items without their own `area`. |
+| `start` | `{ lat, lng }` | No | Optional starting point for `ground` or `sequence` mode only. |
+| `clusterRadiusM` | number | No | Walking cluster radius in meters (`200`–`3000`, default `800`). Valid for `ground` and `sequence` only. |
+| `kind` | string | No | Category to search around the fair midpoint (`"cafe"`, `"restaurant"`, `"bar"`; default `"restaurant"`). Valid for `meet` only. |
+| `candidates` | array (`1`–`15`) | No | Caller-supplied meeting-venue candidates to score for physical fairness across participants (same shape as `items`, default IDs `cand_1`…). Valid for `meet` only. |
+
+## Examples
+
+<Tabs>
+  <Tab title="Walking sequence">
+    ```bash cURL
+    curl -X POST "https://api.kviria.com/v1/batch" \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer $KVIRIA_KEY" \
+      -d '{
+        "mode": "sequence",
+        "area": "San Francisco, CA",
+        "items": [
+          { "id": "tartine", "name": "Tartine Bakery" },
+          { "id": "stable", "name": "Stable Cafe" },
+          { "id": "four_barrel", "name": "Four Barrel Coffee" },
+          { "id": "dolores", "name": "Mission Dolores Park" }
+        ]
+      }'
+    ```
+
+    Trimmed response:
+
+    ```json Response
+    {
+      "mode": "sequence",
+      "items": [
+        {
+          "id": "tartine",
+          "index": 0,
+          "status": "resolved",
+          "name": "Tartine Bakery",
+          "category": "bakery",
+          "location": { "lat": 37.76142, "lng": -122.4241 },
+          "address": { "number": "600", "street": "Guerrero St" }
+        }
+      ],
+      "matrix": [
+        { "fromId": "tartine", "toId": "dolores", "distanceM": 195, "walkM": 238 }
+      ],
+      "clusters": [
+        {
+          "id": "cluster_1",
+          "memberIds": ["tartine", "dolores", "four_barrel", "stable"],
+          "centroid": { "lat": 37.7621, "lng": -122.4209 },
+          "spanM": 920,
+          "sequence": ["dolores", "tartine", "four_barrel", "stable"],
+          "totalLegDistanceM": 1412,
+          "totalLegWalkM": 1765
+        }
+      ],
+      "outliers": [],
+      "sequence": {
+        "order": ["dolores", "tartine", "four_barrel", "stable"],
+        "legs": [
+          { "fromId": "dolores", "toId": "tartine", "distanceM": 195, "walkM": 238 }
+        ],
+        "totalDistanceM": 1412,
+        "totalWalkM": 1765
+      },
+      "evidence": [
+        { "test": "batch", "result": "pass", "reasonCode": "batch.all_resolved" }
+      ]
+    }
+    ```
+  </Tab>
+
+  <Tab title="Fair meeting point">
+    ```bash cURL
+    curl -X POST "https://api.kviria.com/v1/batch" \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer $KVIRIA_KEY" \
+      -d '{
+        "mode": "meet",
+        "area": "San Francisco, CA",
+        "kind": "cafe",
+        "items": [
+          { "id": "alice", "address": { "number": "2128", "street": "Folsom St" } },
+          { "id": "bob", "address": { "number": "1", "street": "Ferry Building" } }
+        ]
+      }'
+    ```
+
+    Trimmed response:
+
+    ```json Response
+    {
+      "mode": "meet",
+      "items": [
+        { "id": "alice", "index": 0, "status": "resolved", "name": "2128 FOLSOM ST", "category": null, "location": { "lat": 37.76326, "lng": -122.4152 } },
+        { "id": "bob", "index": 1, "status": "resolved", "name": "1 FERRY BUILDING", "category": null, "location": { "lat": 37.7955, "lng": -122.3937 } }
+      ],
+      "meet": {
+        "geometricMedian": { "lat": 37.77938, "lng": -122.40445 },
+        "minimaxCenter": { "lat": 37.77938, "lng": -122.40445 },
+        "hub": {
+          "lat": 37.7791,
+          "lng": -122.4042,
+          "source": "venue_cluster",
+          "nearbyCount": 24
+        },
+        "participantSpanM": 4046,
+        "corridorWalkMode": "street_graph",
+        "kind": "cafe",
+        "suggestions": [
+          {
+            "name": "Split Pea Seduction",
+            "category": "cafe",
+            "location": { "lat": 37.77965, "lng": -122.4041 },
+            "distancesFrom": [
+              { "participantId": "alice", "distanceM": 2060, "walkM": 2372 },
+              { "participantId": "bob", "distanceM": 1990, "walkM": 2369 }
+            ],
+            "maxDistanceM": 2060,
+            "meanDistanceM": 2025,
+            "maxWalkM": 2372,
+            "meanWalkM": 2370.5,
+            "fairnessSpreadM": 3,
+            "nearbyKindCount250m": 42
+          }
+        ]
+      },
+      "evidence": [
+        { "test": "batch", "result": "pass", "reasonCode": "batch.all_resolved" }
+      ]
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Response notes
+
+- **Ambiguity preservation:** Multi-branch chains or ambiguous names return `status: "ambiguous"` with up to `3` `candidates` rather than guessing; remaining items still resolve and sequence cleanly.
+- **Street walking vs. straight-line distances:** `meet` computes street-network `walkM` across walkable corridors (`corridorWalkMode: "street_graph"`), falling back to straight-line distances on wider metro spans (`walkM: null`, `corridorWalkMode: "straight_line_fallback"`).
+- **External candidates (`meet`):** When you pass `candidates[]`, Kviria resolves and ranks those exact venues by fairness across all participants (`hub.source: "external_candidates"`), returning any unresolved entries under `meet.unresolvedCandidates`.

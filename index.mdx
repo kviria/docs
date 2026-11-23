@@ -1,31 +1,45 @@
 ---
 title: Overview
-description: Location understanding for voice and chat agents across the United States.
+description: Location infrastructure for AI to search and reason over places across the United States.
 icon: book-open
 ---
 
-Kviria resolves what a user says about a location, around their current position (*"a cafe across from the bank"*) or in an area they name (*"espresso in Williamsburg, Brooklyn"*, *"597 Greene Ave, Brooklyn"*), to one verified place, door, or street corner.
+Kviria is location infrastructure for AI to search and reason over places across the United States. It resolves natural-language location requests (*"a cafe across from the bank"*, *"espresso in Williamsburg, Brooklyn"*, *"597 Greene Ave, Brooklyn"*), profiles and compares street-level neighborhood conditions, and sequences multi-stop walking itineraries or fair meeting points.
 
-It returns structured JSON facts only; your agent speaks the reply.
+Every endpoint and MCP tool returns structured JSON facts only; your agent speaks the reply.
 
 <CardGroup cols={2}>
   <Card title="Quickstart" icon="rocket" href="/quickstart">
     Connect via MCP or send your first HTTP call in two minutes.
   </Card>
-  <Card title="Agent endpoint" icon="terminal" href="/api/agent">
-    Full request fields, response schema, and target properties for `POST /v1/agent`.
-  </Card>
   <Card title="MCP server" icon="plug" href="/api/mcp">
-    One-click OAuth setup for Claude, ChatGPT, Claude Code, and Cursor.
+    One-click OAuth setup for Claude, ChatGPT, Perplexity, Gemini, and Cursor.
+  </Card>
+  <Card title="Agent endpoint (kviria)" icon="terminal" href="/api/agent">
+    Single-turn and multi-turn place, address, and corner resolution at `POST /v1/agent`.
+  </Card>
+  <Card title="Profile endpoint (kviria_profile)" icon="map-pin" href="/api/profile">
+    Street class, arterial proximity, building context, walking amenities, and side-by-side comparisons at `POST /v1/profile`.
+  </Card>
+  <Card title="Batch endpoint (kviria_batch)" icon="layers" href="/api/batch">
+    Multi-stop grounding, walking sequences, and fair meeting points at `POST /v1/batch`.
   </Card>
   <Card title="Rate limits and errors" icon="gauge" href="/api/limits">
-    Free beta quotas (`600` turns/day), `GET /v1/account`, and error codes.
+    Free quotas (`600` credits/day), credit weights (`1` to `5`), `GET /v1/account`, and error codes.
   </Card>
 </CardGroup>
 
+## Three tools, one contract
+
+| Tool / Endpoint | Use it when | Credits |
+|---|---|---|
+| `kviria` · [`POST /v1/agent`](/api/agent) | Finding a place, address, or intersection; answering nearby, across-the-street, next-to, or multi-turn follow-ups | `1` credit |
+| `kviria_profile` · [`POST /v1/profile`](/api/profile) | Auditing street frontage, arterial proximity, building context, walkable amenities, and claims across `1` to `5` US locations | `1` credit per location (`1`–`5`) |
+| `kviria_batch` · [`POST /v1/batch`](/api/batch) | Grounding a list of `2` to `15` stops, clustering and ordering a walking itinerary, or finding a fair meeting hub for `2` to `5` people | `1` credit per `3` items (`1`–`5`) |
+
 ## How a multi-turn conversation works
 
-Every call sends `request` (`"ask"` with the user's message in `words`, or structured fields) plus the signed `state` from the previous response.
+Every `/v1/agent` (`kviria`) call sends `request` (`"ask"` with the user's message in `words`, or structured fields) plus the signed `state` from the previous response.
 
 <Steps>
   <Step title="Turn 1: Ask">
@@ -52,7 +66,7 @@ Every call sends `request` (`"ask"` with the user's message in `words`, or struc
     }
     ```
 
-    Kviria returns `decision: "one"` with `Devocion`, `69 Grand St`, its verified coordinate `{ lat, lng }`, and a new `state`.
+    Kviria returns `decision: "one"` with `Devocion`, `69 Grand St`, its coordinate `{ lat, lng }`, and a new `state`.
   </Step>
   <Step title="Turn 3: Follow up">
     User says: *"what is across the street from it?"*
@@ -69,9 +83,9 @@ Every call sends `request` (`"ask"` with the user's message in `words`, or struc
   </Step>
 </Steps>
 
-## Five decisions
+## Five decisions (`/v1/agent`)
 
-Every turn returns one `decision` and a new `state`:
+Every `/v1/agent` turn returns one `decision` and a new `state`:
 
 | Decision | Meaning | Your agent's move |
 |---|---|---|
@@ -81,16 +95,19 @@ Every turn returns one `decision` and a new `state`:
 | `unclear` | Needs clarification, a heading, or an area choice (`areaOptions`) | Ask the question or offer the 3 `areaOptions` |
 | `none` | Nothing matched in the map data | Tell the user what could not be found and ask for another detail |
 
-## Agent contracts
+## Agent contracts and manifests
 
-<CardGroup cols={3}>
+<CardGroup cols={2}>
   <Card title="skill.md" icon="file-text" href="https://kviria.com/skill.md">
     System prompt and caller rules for agents.
   </Card>
   <Card title="tool-definition.json" icon="braces" href="https://kviria.com/tool-definition.json">
-    Authoritative JSON Schema for tool calling and MCP.
+    Authoritative JSON Schema for `kviria` tool calling and MCP.
   </Card>
   <Card title="openapi.json" icon="globe" href="https://api.kviria.com/openapi.json">
-    OpenAPI 3.1 machine specification.
+    OpenAPI 3.1 specification covering `/v1/agent`, `/v1/profile`, `/v1/batch`, and `/v1/account`.
+  </Card>
+  <Card title="kviria-plugin" icon="plug" href="https://github.com/kviria/kviria-plugin">
+    Official plugin manifests and MCP skill for Claude, ChatGPT, and MCP clients.
   </Card>
 </CardGroup>

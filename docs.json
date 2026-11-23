@@ -25,6 +25,10 @@
         "label": "Live demo"
       },
       {
+        "href": "https://github.com/kviria",
+        "label": "GitHub"
+      },
+      {
         "href": "mailto:hello@kviria.com",
         "label": "Contact"
       }
@@ -60,17 +64,69 @@
         "group": "Get started",
         "pages": [
           "index",
-          "quickstart"
+          "quickstart",
+          "api/mcp"
         ]
       },
       {
-        "group": "Reference",
+        "group": "API Reference",
         "pages": [
           "api/agent",
-          "api/limits",
-          "api/mcp",
+          "api/profile",
+          "api/batch",
+          "api/limits"
+        ]
+      },
+      {
+        "group": "Resources",
+        "pages": [
           "data",
           "changelog"
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/kviria"
+    },
+    "links": [
+      {
+        "header": "Product",
+        "items": [
+          {
+            "label": "Live demo",
+            "href": "https://kviria.com"
+          },
+          {
+            "label": "Get API Key",
+            "href": "https://api.kviria.com/key"
+          },
+          {
+            "label": "Plugin repository",
+            "href": "https://github.com/kviria/kviria-plugin"
+          },
+          {
+            "label": "Status",
+            "href": "https://status.kviria.com"
+          }
+        ]
+      },
+      {
+        "header": "Legal & Support",
+        "items": [
+          {
+            "label": "Privacy Policy",
+            "href": "https://kviria.com/privacy"
+          },
+          {
+            "label": "Terms of Service",
+            "href": "https://kviria.com/terms"
+          },
+          {
+            "label": "hello@kviria.com",
+            "href": "mailto:hello@kviria.com"
+          }
         ]
       }
     ]

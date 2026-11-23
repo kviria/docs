@@ -4,13 +4,23 @@ description: Product updates and contract changes in Kviria.
 icon: history
 ---
 
+<Update label="November 23, 2026">
+  Kviria now ships location profiling (`kviria_profile`), batch sequencing and fair meeting points (`kviria_batch`), and MCP Server `2.1.0` across all three tools.
+
+  - **Location profiles and comparisons (`POST /v1/profile` & MCP `kviria_profile`):** Inspect `1` to `5` US locations in one call for street class, nearest arterial distance, `250` m block building context, walking distances across `9` amenity categories, physical claim checks (`quietStreet`, `maxWalkM`), and side-by-side comparison summaries.
+  - **Batch grounding, walking sequences, and fair meeting points (`POST /v1/batch` & MCP `kviria_batch`):** Resolve `2` to `15` stops with explicit ambiguity flags, group nearby stops into walking clusters with non-zigzag visit sequences, or compute fair walking meeting hubs and venue suggestions for `2` to `5` participants (including optional caller-supplied `candidates[]`).
+  - **MCP Server `2.1.0` & Official MCP Registry:** Published `com.kviria/kviria@2.1.0` exposing all three read-only tools (`kviria`, `kviria_profile`, `kviria_batch`) over streamable HTTP with OAuth 2.1 PKCE, CIMD, and DCR.
+  - **US address and area resolution improvements:** State-qualified queries such as `"New York, NY"` resolve cleanly while bare `"New York"` stays explicit; ordinal streets (`"4th Street"`, `"Second Street"`) and trailing unit/suite suffixes (`"Ste 100"`, `"Suite 200"`, `"#4B"`) resolve reliably across US cities.
+  - **Shared daily credits:** Accounts receive `600` free credits per UTC day across all three endpoints (`1` credit for `/v1/agent`; `1` to `5` credits for `/v1/profile` and `/v1/batch`).
+</Update>
+
 <Update label="November 21, 2026">
   Search any city, neighborhood, street, or ZIP code across the United States without a GPS pin, and send user messages directly with `request: "ask"`.
 
   - **Area search (`area` and `areaOptions`):** Start a conversation in any US city, borough, neighborhood, street corridor, or postcode instead of passing `anchor`. When an area is broad or ambiguous, Kviria returns `decision: "unclear"` with up to three `areaOptions` (`area`, `cluster`, `street`, `resolve`, or `kind`) to narrow down step by step.
   - **Natural-language turns (`request: "ask"` and `"resolve"`):** Send the user's message directly in `words` with `request: "ask"`. Kviria extracts the target, area, street corridor, or follow-up answer (`"the second one"`, `"yes"`, `"more"`) automatically while keeping full support for structured requests.
   - **Adaptive search radius (`rangeM`):** Position searches now default to `500` meters (`250` to `500` m, expanding automatically in sparse areas).
-  - **Row-number disambiguation:** `distinguishBy` adds `"number"` when multiple matching doors sit along the same block.
+  - **Row-number disambiguation:** `distinguishBy` adds `"number"` when multiple matching addresses sit along the same block.
 </Update>
 
 <Update label="November 1, 2026">
@@ -20,19 +30,19 @@ icon: history
   - **Relative directions (`facing`, `toward`, `relative`):** Send what the user faces in `facing` (or a compass `heading`) and an optional `toward` (`ahead`, `behind`, `left`, `right`). Places return `relative` sector labels such as `"ahead-right"` or `"left"`.
   - **Corners, neighbors, and buildings:** Places carry `address` (or `nearAddress`), `corner` streets, up to two immediate neighbors in `nextTo`, `sameBuilding` peers, and `tallBuilding`.
   - **Clearer lists (`distinguishBy`):** `many` responses name the single clearest fact that tells the top three candidates apart (`street`, `side`, `corner`, `direction`, or `height`).
-  - **Account quota endpoint:** `GET /v1/account` returns your daily turn allowance, used turns, remaining turns, and UTC reset timestamp without counting as a turn.
+  - **Account quota endpoint:** `GET /v1/account` returns your daily allowance, usage, remaining credits, and UTC reset timestamp without counting toward your quota.
 </Update>
 
 <Update label="September 16, 2026">
-  Kviria now covers the **contiguous United States** (latitude `24.4` to `49.5`, longitude `-125.0` to `-66.8`), expanding beyond the initial San Francisco release.
+  Kviria now covers the **United States** (latitude `24.4` to `49.5`, longitude `-125.0` to `-66.8`), expanding beyond the initial San Francisco release.
 
-  - **National coverage:** The same endpoint (`POST /v1/agent`) and MCP tool (`kviria`) resolve places, addresses, and street intersections across the contiguous US.
+  - **National coverage:** The same endpoint (`POST /v1/agent`) and MCP tool (`kviria`) resolve places, addresses, and street intersections across the US.
   - **Honest coverage boundaries:** Queries outside covered bounds return `decision: "none"` with `out_of_coverage` in `evidence` instead of guessing.
-  - **US-wide live demo:** The interactive demo on [kviria.com](https://kviria.com) supports queries across the contiguous United States.
+  - **US-wide live demo:** The interactive demo on [kviria.com](https://kviria.com) supports queries across the United States.
 </Update>
 
 <Update label="September 9, 2026">
-  Initial public beta release of Kviria for voice and chat agents.
+  Initial public beta release of Kviria for AI agents.
 
   - **One endpoint and one MCP tool:** Call `POST https://api.kviria.com/v1/agent` or connect the streamable HTTP MCP server at `https://api.kviria.com/mcp`.
   - **Clear decisions:** Every turn returns `one`, `one_unconfirmed`, `many`, `none`, or `unclear`, plus an `evidence` trail and a signed `state` string for multi-turn continuity.

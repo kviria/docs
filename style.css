@@ -11,6 +11,14 @@
   font-size: 0.85em;
 }
 
+/* Match kviria.com header wordmark scale (88px x 18.3px, tight 679x141 viewBox). */
+.nav-logo {
+  width: 88px !important;
+  height: 18.3px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 .card,
 pre,
 [data-component-part="card"] {

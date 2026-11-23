@@ -103,8 +103,8 @@
             "href": "https://api.kviria.com/key"
           },
           {
-            "label": "Plugin repository",
-            "href": "https://github.com/kviria/kviria-plugin"
+            "label": "Onboarding guide",
+            "href": "https://kviria.com/setup.md"
           },
           {
             "label": "Status",

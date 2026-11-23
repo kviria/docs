@@ -8,7 +8,6 @@ Public documentation for [Kviria](https://kviria.com), published at [docs.kviria
 - **Live demo:** https://kviria.com
 - **Onboarding guide:** https://kviria.com/setup.md
 - **MCP server:** https://api.kviria.com/mcp
-- **Plugin repository:** https://github.com/kviria/kviria-plugin
 - **Get an API key:** https://api.kviria.com/key
 - **Skill contract:** https://kviria.com/skill.md
 - **Tool definition:** https://kviria.com/tool-definition.json

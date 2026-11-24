@@ -185,7 +185,7 @@ Trimmed response:
 | `locations[]` | One result per input in order. `status` is `"ok"`, or `"ambiguous"` / `"not_found"` / `"out_of_coverage"` with a `reason` string (and up to `3` `candidates` when ambiguous). |
 | `street` | Frontage street `name`, road `class`, perpendicular `distanceM`, `isArterial` (`motorway`, `trunk`, `primary`, `secondary`), `nearestArterial`, and `cornerDistanceM`. |
 | `block` | `250` m block statistics (`doors`, `buildings`, `crossingsCount500m`). `residentialShare` and building height percentiles return `null` when local sample size is too small. |
-| `amenities` | Per requested domain: `count250m`, `count500m`, and `nearest` place with straight-line `distanceM` and street-network `walkM`. |
+| `amenities` | Per requested domain: `count250m`, `count500m`, and `nearest` place with straight-line `distanceM` and street-network `walkM`. The `transit` domain uses US National Transit Map stops (`source: "ntad_transit"`, categorized as `subway_station`, `rail_station`, `light_rail_station`, `ferry_terminal`, `bus_stop`, or `transit_stop`) and falls back to map POI matches (`source: "overture_pois"`) when no transit feed covers the area. |
 | `claimsCheck` | Present when `claims` was sent. Each verdict is `"supported"`, `"contradicted"`, or `"insufficient_data"` alongside the exact `measured` values. `quietStreet` evaluates frontage street class and proximity to the nearest arterial road. |
 | `compare` | Present when `2` or more locations resolve: fact-first winners for `quietestStreet`, `farthestFromArterial`, `mostAmenities500m`, `highestResidentialShare`, `lowestMedianHeightM`, and `closestByDomain`. |
 

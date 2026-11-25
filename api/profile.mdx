@@ -139,6 +139,12 @@ Trimmed response:
           "workFromHomeShare": 0.339
         }
       },
+      "terrain": {
+        "source": "usgs_terrarium_dem",
+        "elevationM": 158,
+        "slopePct": 1.2,
+        "relief250mM": 5
+      },
       "claimsCheck": [
         {
           "claim": "quietStreet",
@@ -202,6 +208,17 @@ Trimmed response:
       "label": "Mission House",
       "share": 0.114
     },
+    "flattestLocation": {
+      "index": 1,
+      "label": "Mission House",
+      "slopePct": 1.2,
+      "relief250mM": 5
+    },
+    "highestElevationM": {
+      "index": 0,
+      "label": "Hotel San Jose",
+      "elevationM": 158
+    },
     "closestByDomain": {
       "cafe": { "index": 1, "label": "Mission House", "name": "Stable Cafe", "distanceM": 8, "walkM": 12 }
     }
@@ -221,8 +238,9 @@ Trimmed response:
 | `block` | `250` m block statistics (`doors`, `buildings`, `crossingsCount500m`). `residentialShare` and building height percentiles return `null` when local sample size is too small. |
 | `amenities` | Per requested domain: `count250m`, `count500m`, and `nearest` place with straight-line `distanceM` and street-network `walkM`. The `transit` domain uses US National Transit Map stops (`source: "ntad_transit"`, categorized as `subway_station`, `rail_station`, `light_rail_station`, `ferry_terminal`, `bus_stop`, or `transit_stop`) and falls back to map POI matches (`source: "overture_pois"`) when no transit feed covers the area. |
 | `demographics` | Optional block-group neighborhood demographics derived from U.S. Census Bureau ACS 5-Year (`2020-2024`) estimates (`source: "us_census_acs5"`): `geoid`, `vintage`, `population`, `populationDensityPerKm2`, `medianHouseholdIncomeUsd`, `medianGrossRentUsd`, `renterShare`, `medianYearBuilt`, `medianAge`, and `commute` shares (`carShare`, `transitShare`, `walkShare`, `bikeShare`, `workFromHomeShare`). Individual metrics return `null` when Census suppresses the estimate or local sample counts are small; omitted over unmapped water or outside Census block groups. |
+| `terrain` | Optional bare-earth topography derived from U.S. Geological Survey (USGS) 3DEP elevation data (`source: "usgs_terrarium_dem"`): `elevationM` (whole meters above sea level), `slopePct` (local ground grade in percent), and `relief250mM` (elevation range in meters within `250` m). Omitted over open water or unmapped areas. |
 | `claimsCheck` | Present when `claims` was sent. Each verdict is `"supported"`, `"contradicted"`, or `"insufficient_data"` alongside the exact `measured` values. `quietStreet` evaluates frontage street class and proximity to the nearest arterial road. |
-| `compare` | Present when `2` or more locations resolve: fact-first winners for `quietestStreet`, `farthestFromArterial`, `mostAmenities500m`, `highestResidentialShare`, `lowestMedianHeightM`, `closestByDomain`, and (when `2` or more resolved locations carry non-null demographics) `highestMedianIncomeUsd`, `lowestMedianRentUsd`, and `highestTransitCommuteShare`. |
+| `compare` | Present when `2` or more locations resolve: fact-first winners for `quietestStreet`, `farthestFromArterial`, `mostAmenities500m`, `highestResidentialShare`, `lowestMedianHeightM`, `closestByDomain`, plus optional `highestMedianIncomeUsd`, `lowestMedianRentUsd`, `highestTransitCommuteShare`, `flattestLocation`, and `highestElevationM` whenever `2` or more resolved locations carry the underlying data. |
 
 <Note>
   **Ambiguity handling:** If a named place matches multiple locations or an area name is ambiguous, that entry returns `status: "ambiguous"` with up to `3` `candidates` (name, detail, and location) instead of guessing, while other locations in the same call still resolve normally.

@@ -5,10 +5,11 @@ icon: history
 ---
 
 <Update label="November 25, 2026">
-  `POST /v1/profile` (and MCP `kviria_profile`) now includes US neighborhood demographics and nationwide transit stop coverage.
+  `POST /v1/profile` (and MCP `kviria_profile`) now includes US neighborhood demographics, bare-earth terrain elevation and slope, and nationwide transit stop coverage.
 
   - **Neighborhood demographics (`demographics`):** Resolved US locations now return block-group population, population density, median household income, median gross rent, renter share, median year structure built, median age, and commute mode shares (`carShare`, `transitShare`, `walkShare`, `bikeShare`, `workFromHomeShare`) from U.S. Census Bureau ACS 5-Year (`2020–2024`) estimates. Suppressed or sparse estimates return `null`.
-  - **Demographic comparison winners (`compare`):** Multi-location comparisons now include fact-first `highestMedianIncomeUsd`, `lowestMedianRentUsd`, and `highestTransitCommuteShare` winners whenever two or more resolved locations carry non-null data.
+  - **Bare-earth terrain (`terrain`):** Resolved US land locations now return elevation (`elevationM`), local slope (`slopePct`), and `250` m elevation relief (`relief250mM`) from USGS 3DEP bare-earth elevation tiles.
+  - **Expanded comparison winners (`compare`):** Multi-location comparisons now include fact-first `highestMedianIncomeUsd`, `lowestMedianRentUsd`, `highestTransitCommuteShare`, `flattestLocation`, and `highestElevationM` winners whenever two or more resolved locations carry the underlying data.
   - **Nationwide transit stops (`ntad_transit`):** The `transit` domain in `kviria_profile` uses U.S. National Transit Map stops (categorized across subway, rail, light rail, ferry, bus, and general transit stops) with walking distances along the street network, falling back to map POIs where no transit feed covers the area.
 </Update>
 

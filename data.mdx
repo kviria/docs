@@ -43,6 +43,7 @@ Kviria's map data is built from [Overture Maps Foundation](https://overturemaps.
 - Addresses are derived from the U.S. Department of Transportation's National Address Database and state and county datasets distributed by OpenAddresses.
 - Transit stops are derived from the [U.S. Department of Transportation (USDOT) Bureau of Transportation Statistics (BTS) National Transit Map Stops](https://doi.org/10.21949/1529049) dataset (National Transportation Atlas Database).
 - Neighborhood demographics are derived from the [U.S. Census Bureau American Community Survey (ACS) 5-Year (`2020–2024`)](https://www.census.gov/programs-surveys/acs) Block Group summary files and [2024 TIGER/Line Cartographic Boundaries](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html) (U.S. Government Public Domain).
+- Terrain elevation and slope are derived from [U.S. Geological Survey (USGS) 3D Elevation Program (3DEP)](https://www.usgs.gov/3d-elevation-program) bare-earth elevation tiles distributed via [Mapzen Terrain Tiles on AWS Open Data](https://registry.opendata.aws/terrain-tiles/) (public domain).
 - Full upstream source details are listed on [Overture's attribution page](https://docs.overturemaps.org/attribution/).
 
 ### Foursquare OS Places notice
@@ -62,3 +63,9 @@ Changes: Kviria filters non-boarding pathway markers, consolidates multi-platfor
 > Source: U.S. Census Bureau, 2020–2024 American Community Survey 5-Year Estimates and 2024 TIGER/Line Cartographic Block Group Boundaries (public domain).
 
 Changes: Kviria indexes block-group estimates spatially for `POST /v1/profile`, converts suppressed Census sentinel values and small housing or commute sample counts to `null`, and returns raw factual metrics without composite scores.
+
+### USGS 3DEP / Terrain Tiles notice
+
+> Source: U.S. Geological Survey (USGS) 3D Elevation Program (3DEP) via Mapzen Terrain Tiles (public domain).
+
+Changes: Kviria samples bare-earth elevation tiles across US land areas to compute elevation (`elevationM`), local slope (`slopePct`), and `250` m relief (`relief250mM`) for `POST /v1/profile`.

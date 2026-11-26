@@ -8,7 +8,7 @@ icon: rocket
   <Step title="Connect or get a key">
     <Tabs>
       <Tab title="MCP (One-click OAuth)">
-        No key or password is required for OAuth MCP clients. Add `https://api.kviria.com/mcp` and click **Allow** on the connect page to expose `kviria`, `kviria_profile`, and `kviria_batch`, or paste `Follow https://kviria.com/setup.md to connect Kviria to my agent or project.` into your AI assistant. See [MCP server](/api/mcp).
+        No key or password is required for OAuth MCP clients. Add `https://api.kviria.com/mcp` and click **Allow** on the connect page to expose `kviria`, `kviria_profile`, and `kviria_batch`, or paste `Read https://kviria.com/setup.md to connect Kviria (voice, web, MCP, or HTTP) to my agent or project.` into your AI assistant. See [For agents](/agents) and [MCP server](/api/mcp).
       </Tab>
       <Tab title="HTTP API (Key)">
         Open [api.kviria.com/key](https://api.kviria.com/key) and click **Create a key**. Copy the `kvr_...` key (shown once).
@@ -23,7 +23,7 @@ icon: rocket
 
     <CodeGroup>
     ```bash cURL
-    curl -X POST "https://api.kviria.com/v1/agent?agent=my-agent" \
+    curl -X POST "https://api.kviria.com/v1/agent" \
       -H "Content-Type: application/json" \
       -H "Authorization: Bearer $KVIRIA_KEY" \
       -d '{
@@ -39,7 +39,7 @@ icon: rocket
       state = "",
       anchor?: { lat: number; lng: number },
     ) {
-      const res = await fetch("https://api.kviria.com/v1/agent?agent=my-agent", {
+      const res = await fetch("https://api.kviria.com/v1/agent", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,7 +66,6 @@ icon: rocket
             body["anchor"] = anchor
         res = requests.post(
             "https://api.kviria.com/v1/agent",
-            params={"agent": "my-agent"},
             headers={"Authorization": f"Bearer {os.environ['KVIRIA_KEY']}"},
             json=body,
             timeout=20,
@@ -118,7 +117,7 @@ icon: rocket
     Pass the user's answer back with the returned `state`:
 
     ```bash cURL
-    curl -X POST "https://api.kviria.com/v1/agent?agent=my-agent" \
+    curl -X POST "https://api.kviria.com/v1/agent" \
       -H "Content-Type: application/json" \
       -H "Authorization: Bearer $KVIRIA_KEY" \
       -d '{

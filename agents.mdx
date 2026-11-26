@@ -1,0 +1,64 @@
+---
+title: For agents
+description: Connect voice agents, autonomous web agents, MCP clients, and HTTP tool-calling SDKs to Kviria.
+icon: bot
+---
+
+Kviria gives any AI agent structured US location facts over HTTP and MCP (`2.1.0`), with `600` free credits per day and `60` requests per minute. Every response is data only; your agent writes or speaks the reply.
+
+- **Web hub:** [kviria.com/agents](https://kviria.com/agents)
+- **Markdown setup guide:** [kviria.com/setup.md](https://kviria.com/setup.md) (also served at [kviria.com/agents.md](https://kviria.com/agents.md))
+- **Full wire contract and system prompt:** [kviria.com/skill.md](https://kviria.com/skill.md)
+- **OpenAPI 3.1:** [api.kviria.com/openapi.json](https://api.kviria.com/openapi.json)
+- **Remote MCP server:** `https://api.kviria.com/mcp`
+
+## Voice and realtime agents
+
+Voice agents require low-latency turns (`< 500` ms typical US lookup), tolerance for natural speech, and concise spoken disambiguation.
+
+1. Expose a single tool calling `POST https://api.kviria.com/v1/agent` with `request: "ask"` and the caller's spoken words verbatim in `words` (plus `anchor` when GPS is available).
+2. Store the returned opaque `state` string in the active call session (`""` on turn 1, overwrite after every response, reset to `""` on `invalid_state`).
+3. Keep `Authorization: Bearer $KVIRIA_KEY` in the request header (`x-kviria-agent` is optional and defaults to `"direct"`).
+4. Kviria handles spoken places, street addresses, intersections, residential and apartment buildings, nationwide transit stops, and spoken decimal coordinates (`"cafes near 37.76326, -122.4152"`).
+
+```json Voice tool definition
+{
+  "type": "function",
+  "name": "kviria",
+  "description": "Look up real US places, addresses, intersections, apartment buildings, or transit stops from the caller's spoken request. Pass the caller's words verbatim in words.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "request": { "type": "string", "enum": ["ask"] },
+      "words": { "type": "string", "description": "The caller's spoken location message verbatim." },
+      "anchor": {
+        "type": "object",
+        "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } },
+        "required": ["lat", "lng"]
+      }
+    },
+    "required": ["request", "words"]
+  }
+}
+```
+
+### Spoken phrasing rules
+
+- **Speak concisely:** Use 1 or 2 short sentences citing returned `name`, `address`, `walkM`, `relative` direction, or `nextTo` peers. Never read raw coordinates, `state` tokens, or `evidence` entries aloud unless asked.
+- **Confirmation (`one_unconfirmed`):** Ask a short yes/no question (for example, *"Did you mean Stable Cafe on 2128 Folsom Street?"*) and send the caller's reply back in `words` with `state`.
+- **Multiple matches (`many`) or area narrowing (`unclear`):** Offer at most 2 or 3 options separated by `distinguishBy` or `areaOptions`, and pass the caller's spoken pick back in `words`.
+- **Not found (`none`):** State plainly what could not be found (or report `out_of_coverage`) and ask for a street, neighborhood, or city.
+
+## Autonomous and web agents
+
+Every discovery manifest and Markdown contract on `kviria.com` is public over HTTPS with `Access-Control-Allow-Origin: *`:
+
+- Fetch [kviria.com/setup.md](https://kviria.com/setup.md) (or [kviria.com/agents.md](https://kviria.com/agents.md)) and [kviria.com/skill.md](https://kviria.com/skill.md) for the complete calling rules.
+- Ask the human once to mint a free `KVIRIA_KEY` at [api.kviria.com/key](https://api.kviria.com/key) or approve one-click OAuth at `https://api.kviria.com/mcp`. Do not attempt to automate the human verification step on `/key`.
+- Check key validity and remaining daily credits for `0` credits with `GET https://api.kviria.com/v1/account`.
+- Use free-text `query` items (with optional top-level `area`) on [`POST /v1/profile`](/api/profile) and [`POST /v1/batch`](/api/batch), and inline decimal coordinates in `request: "ask"` on [`POST /v1/agent`](/api/agent).
+
+## MCP and HTTP tool-calling SDKs
+
+- **MCP clients:** Connect to `https://api.kviria.com/mcp` over Streamable HTTP (OAuth 2.1 PKCE or Bearer key) to register `kviria`, `kviria_profile`, and `kviria_batch`. See [MCP server](/api/mcp).
+- **HTTP and SDKs:** Import [api.kviria.com/openapi.json](https://api.kviria.com/openapi.json) or follow [Quickstart](/quickstart) to call `/v1/agent`, `/v1/profile`, and `/v1/batch` directly.

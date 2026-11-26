@@ -65,6 +65,7 @@
         "pages": [
           "index",
           "quickstart",
+          "agents",
           "api/mcp"
         ]
       },
@@ -103,8 +104,8 @@
             "href": "https://api.kviria.com/key"
           },
           {
-            "label": "Onboarding guide",
-            "href": "https://kviria.com/setup.md"
+            "label": "For agents",
+            "href": "https://kviria.com/agents"
           },
           {
             "label": "Status",

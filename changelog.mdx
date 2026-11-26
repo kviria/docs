@@ -4,6 +4,17 @@ description: Product updates and contract changes in Kviria.
 icon: history
 ---
 
+<Update label="November 26, 2026">
+  Kviria now resolves residential and apartment buildings alongside businesses, adds nationwide transit stop search to `/v1/agent`, and unifies input ergonomics across all three endpoints.
+
+  - **Residential and apartment buildings in `/v1/agent`:** Adjacent building queries (`next_to`, `"the building to the right"`) and category searches (`"apartment"`, `"residential building"`, `"house"`, `"condo"`, `"school"`, `"warehouse"`) now surface addressed non-business buildings when recorded in building data, alongside storefront POIs.
+  - **Nationwide transit stops in `/v1/agent`:** Searching for `"bus stop"`, `"subway station"`, `"train station"`, `"light rail"`, or `"ferry terminal"` around a pin or in any US area now returns U.S. National Transit Map stops (with full `pick` and `more` multi-turn support), deduplicated against nearby map POIs.
+  - **Inline coordinates in `request: "ask"`:** Passing decimal coordinates inside natural-language queries (such as `"cafes near 37.76326, -122.4152"`) automatically pins the search without requiring a separate `anchor` field.
+  - **Unified free-text `query` and default `area`:** `POST /v1/profile` (`locations[]`) and `POST /v1/batch` (`items[]` and `candidates[]`) now accept an optional free-text `query` shorthand (automatically parsed as coordinates, street address, or named place), `POST /v1/profile` accepts a top-level default `area`, and sending both `anchor` and `area` on a profile or batch item now uses `anchor` with an `area_ignored_with_anchor` warning instead of returning `400`.
+  - **Optional `x-kviria-agent` header:** `x-kviria-agent` / `?agent=` is now optional on `POST /v1/agent` (defaulting to `direct`), matching `/v1/profile` and `/v1/batch`, while continuing to validate format when provided.
+  - **Complete 3-tool skill guide:** [kviria.com/skill.md](https://kviria.com/skill.md) now documents `kviria`, `kviria_profile`, and `kviria_batch` together.
+</Update>
+
 <Update label="November 25, 2026">
   `POST /v1/profile` (and MCP `kviria_profile`) now includes US neighborhood demographics, bare-earth terrain elevation and slope, and nationwide transit stop coverage.
 

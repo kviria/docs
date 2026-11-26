@@ -20,7 +20,8 @@ Every call charges `1` credit per requested location (`1` to `5` credits). See [
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `locations` | array (`1`–`5`) | Yes | Locations to profile. Each item accepts optional `label` (`<= 80` chars) and **exactly one** of `anchor` (`{ lat, lng }`), `address` (`{ number, street }` + optional `area`), or `place` (`{ name }` + optional `area`). Do not combine `anchor` with `area`. |
+| `locations` | array (`1`–`5`) | Yes | Locations to profile. Each item accepts optional `label` (`<= 80` chars) and **exactly one** of `anchor` (`{ lat, lng }`), `address` (`{ number, street }` + optional `area`), `place` (`{ name }` + optional `area`), or free-text `query` (`<= 240` chars, auto-classified as inline `lat, lng`, street address, or named place). If both `anchor` and `area` are sent on the same item, `anchor` takes precedence and a warning entry (`area_ignored_with_anchor`) is recorded in `evidence`. |
+| `area` | string | No | Optional default US area (`"San Francisco, CA"`, `"Brooklyn, NY"`) inherited by any location item that omits its own `area`. |
 | `radiusM` | `250 \| 500` | No | Amenity scan radius in meters (default `500`; sparse areas may expand automatically). |
 | `domains` | string[] | No | Subset of amenity domains to scan (defaults to all `9`): `grocery`, `cafe`, `restaurant`, `bar`, `park`, `pharmacy`, `fitness`, `school`, `transit`. |
 | `claims` | object | No | Optional physical claim checks evaluated per location: `quietStreet` (`boolean`) and `maxWalkM` (map of domain -> threshold meters, `50`–`2000`). Any domain named in `maxWalkM` is automatically included in `domains`. |

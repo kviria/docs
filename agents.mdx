@@ -6,8 +6,7 @@ icon: bot
 
 Kviria gives any AI agent structured US location facts over HTTP and MCP (`2.1.0`), with `600` free credits per day and `60` requests per minute. Every response is data only; your agent writes or speaks the reply.
 
-- **Web hub:** [kviria.com/agents](https://kviria.com/agents)
-- **Markdown setup guide:** [kviria.com/setup.md](https://kviria.com/setup.md) (also served at [kviria.com/agents.md](https://kviria.com/agents.md))
+- **Plain-text / Markdown agent guide:** [kviria.com/setup.md](https://kviria.com/setup.md)
 - **Full wire contract and system prompt:** [kviria.com/skill.md](https://kviria.com/skill.md)
 - **OpenAPI 3.1:** [api.kviria.com/openapi.json](https://api.kviria.com/openapi.json)
 - **Remote MCP server:** `https://api.kviria.com/mcp`
@@ -53,7 +52,7 @@ Voice agents require low-latency turns (`< 500` ms typical US lookup), tolerance
 
 Every discovery manifest and Markdown contract on `kviria.com` is public over HTTPS with `Access-Control-Allow-Origin: *`:
 
-- Fetch [kviria.com/setup.md](https://kviria.com/setup.md) (or [kviria.com/agents.md](https://kviria.com/agents.md)) and [kviria.com/skill.md](https://kviria.com/skill.md) for the complete calling rules.
+- Fetch [kviria.com/setup.md](https://kviria.com/setup.md) and [kviria.com/skill.md](https://kviria.com/skill.md) for the complete calling rules.
 - Ask the human once to mint a free `KVIRIA_KEY` at [api.kviria.com/key](https://api.kviria.com/key) or approve one-click OAuth at `https://api.kviria.com/mcp`. Do not attempt to automate the human verification step on `/key`.
 - Check key validity and remaining daily credits for `0` credits with `GET https://api.kviria.com/v1/account`.
 - Use free-text `query` items (with optional top-level `area`) on [`POST /v1/profile`](/api/profile) and [`POST /v1/batch`](/api/batch), and inline decimal coordinates in `request: "ask"` on [`POST /v1/agent`](/api/agent).

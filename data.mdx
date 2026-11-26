@@ -12,7 +12,7 @@ icon: database
   </Accordion>
 
   <Accordion title="Which tool or endpoint should my agent call?">
-    Use `kviria` ([`POST /v1/agent`](/api/agent)) for single-place lookup, nearby/across/next-to reasoning, and multi-turn disambiguation. Use `kviria_profile` ([`POST /v1/profile`](/api/profile)) to inspect street frontage, arterial proximity, building context, walking amenities, and location claims for `1` to `5` places. Use `kviria_batch` ([`POST /v1/batch`](/api/batch)) to ground `2` to `15` stops, sequence a walking itinerary, or find a fair meeting point for `2` to `5` people.
+    Use `kviria` ([`POST /v1/agent`](/api/agent)) for single-place lookup, apartment buildings, nationwide transit stops, nearby/across/next-to reasoning, and multi-turn disambiguation. Use `kviria_profile` ([`POST /v1/profile`](/api/profile)) to inspect street frontage, arterial proximity, building context, walking amenities, neighborhood demographics, bare-earth terrain, and location claims for `1` to `5` places. Use `kviria_batch` ([`POST /v1/batch`](/api/batch)) to ground `2` to `15` stops, sequence a walking itinerary, or find a fair meeting point for `2` to `5` people.
   </Accordion>
 
   <Accordion title="Is Kviria free?">
@@ -42,7 +42,7 @@ Kviria's map data is built from [Overture Maps Foundation](https://overturemaps.
 - Places are derived from sources under [CDLA Permissive 2.0](https://cdla.dev/permissive-2-0/), [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0), and [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
 - Addresses are derived from the U.S. Department of Transportation's National Address Database and state and county datasets distributed by OpenAddresses.
 - Transit stops are derived from the [U.S. Department of Transportation (USDOT) Bureau of Transportation Statistics (BTS) National Transit Map Stops](https://doi.org/10.21949/1529049) dataset (National Transportation Atlas Database).
-- Neighborhood demographics are derived from the [U.S. Census Bureau American Community Survey (ACS) 5-Year (`2020–2024`)](https://www.census.gov/programs-surveys/acs) Block Group summary files and [2024 TIGER/Line Cartographic Boundaries](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html) (U.S. Government Public Domain).
+- Neighborhood demographics are derived from the [U.S. Census Bureau American Community Survey (ACS) 5-Year (`2020-2024`)](https://www.census.gov/programs-surveys/acs) Block Group summary files and [2024 TIGER/Line Cartographic Boundaries](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html) (U.S. Government Public Domain).
 - Terrain elevation and slope are derived from [U.S. Geological Survey (USGS) 3D Elevation Program (3DEP)](https://www.usgs.gov/3d-elevation-program) bare-earth elevation tiles distributed via [Mapzen Terrain Tiles on AWS Open Data](https://registry.opendata.aws/terrain-tiles/) (public domain).
 - Full upstream source details are listed on [Overture's attribution page](https://docs.overturemaps.org/attribution/).
 
@@ -60,7 +60,7 @@ Changes: Kviria filters non-boarding pathway markers, consolidates multi-platfor
 
 ### U.S. Census Bureau ACS notice
 
-> Source: U.S. Census Bureau, 2020–2024 American Community Survey 5-Year Estimates and 2024 TIGER/Line Cartographic Block Group Boundaries (public domain).
+> Source: U.S. Census Bureau, 2020-2024 American Community Survey 5-Year Estimates and 2024 TIGER/Line Cartographic Block Group Boundaries (public domain).
 
 Changes: Kviria indexes block-group estimates spatially for `POST /v1/profile`, converts suppressed Census sentinel values and small housing or commute sample counts to `null`, and returns raw factual metrics without composite scores.
 

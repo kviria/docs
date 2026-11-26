@@ -12,9 +12,9 @@ Kviria's Model Context Protocol (MCP) server (`2.1.0`) runs over **streamable HT
 
 | Tool | Equivalent endpoint | What it does |
 |---|---|---|
-| `kviria` | [`POST /v1/agent`](/api/agent) | Resolve a place, address, or intersection; handle nearby, across, next-to, and multi-turn follow-ups |
-| `kviria_profile` | [`POST /v1/profile`](/api/profile) | Profile and compare street class, arterial distance, building context, walking amenities, and location claims for `1`–`5` US locations |
-| `kviria_batch` | [`POST /v1/batch`](/api/batch) | Ground `2`–`15` stops, order a walking itinerary, or compute a fair meeting point for `2`–`5` people |
+| `kviria` | [`POST /v1/agent`](/api/agent) | Resolve a place, address, apartment building, transit stop, or intersection; handle nearby, across, next-to, and multi-turn follow-ups |
+| `kviria_profile` | [`POST /v1/profile`](/api/profile) | Profile and compare street class, arterial distance, building context, walking amenities, neighborhood demographics, bare-earth terrain, and location claims for `1` to `5` US locations |
+| `kviria_batch` | [`POST /v1/batch`](/api/batch) | Ground `2` to `15` stops, order a walking itinerary, or compute a fair meeting point for `2` to `5` people |
 
 All three tools advertise read-only MCP tool annotations (`readOnlyHint: true`, `destructiveHint: false`, `openWorldHint: false`; `idempotentHint: true` on stateless `kviria_profile` and `kviria_batch`, `false` on stateful `kviria`) and return structured JSON content (`structuredContent`) alongside plain JSON text.
 
@@ -29,7 +29,7 @@ All three tools advertise read-only MCP tool annotations (`readOnlyHint: true`, 
 Paste this prompt into Claude Code, Cursor, Codex, or your AI assistant to configure Kviria automatically:
 
 ```text Onboarding prompt
-Follow https://kviria.com/setup.md to connect Kviria to my agent or project.
+Read https://kviria.com/setup.md and connect Kviria to my agent.
 ```
 
 ## Connect your client

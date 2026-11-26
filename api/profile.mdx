@@ -20,11 +20,11 @@ Every call charges `1` credit per requested location (`1` to `5` credits). See [
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `locations` | array (`1`–`5`) | Yes | Locations to profile. Each item accepts optional `label` (`<= 80` chars) and **exactly one** of `anchor` (`{ lat, lng }`), `address` (`{ number, street }` + optional `area`), `place` (`{ name }` + optional `area`), or free-text `query` (`<= 240` chars, auto-classified as inline `lat, lng`, street address, or named place). If both `anchor` and `area` are sent on the same item, `anchor` takes precedence and a warning entry (`area_ignored_with_anchor`) is recorded in `evidence`. |
-| `area` | string | No | Optional default US area (`"San Francisco, CA"`, `"Brooklyn, NY"`) inherited by any location item that omits its own `area`. |
+| `locations` | array (`1` to `5`) | Yes | Locations to profile. Each item accepts optional `label` (`<= 80` chars) and **exactly one** of `anchor` (`{ lat, lng }`), `address` (`{ number, street }` + optional `area`), `place` (`{ name }` + optional `area`), or free-text `query` (`<= 240` chars, auto-classified as inline `lat, lng`, street address, or named place). If both `anchor` and `area` are sent on the same item, `anchor` takes precedence and a warning entry (`area_ignored_with_anchor`) is recorded in `evidence`. |
+| `area` | string | No | Optional default US area (`"Austin, TX"`, `"Brooklyn, NY"`) inherited by any location item that omits its own `area`. |
 | `radiusM` | `250 \| 500` | No | Amenity scan radius in meters (default `500`; sparse areas may expand automatically). |
 | `domains` | string[] | No | Subset of amenity domains to scan (defaults to all `9`): `grocery`, `cafe`, `restaurant`, `bar`, `park`, `pharmacy`, `fitness`, `school`, `transit`. |
-| `claims` | object | No | Optional physical claim checks evaluated per location: `quietStreet` (`boolean`) and `maxWalkM` (map of domain -> threshold meters, `50`–`2000`). Any domain named in `maxWalkM` is automatically included in `domains`. |
+| `claims` | object | No | Optional physical claim checks evaluated per location: `quietStreet` (`boolean`) and `maxWalkM` (map of domain to threshold meters, `50` to `2000`). Any domain named in `maxWalkM` is automatically included in `domains`. |
 
 ## Example: checking a "quiet street" claim
 
@@ -35,14 +35,14 @@ curl -X POST "https://api.kviria.com/v1/profile" \
   -d '{
     "locations": [
       {
-        "label": "Hotel San Jose",
-        "address": { "number": "1316", "street": "South Congress Ave" },
+        "label": "Congress Ave",
+        "address": { "number": "100", "street": "Congress Ave" },
         "area": "Austin, TX"
       },
       {
-        "label": "Mission House",
-        "address": { "number": "2128", "street": "Folsom St" },
-        "area": "San Francisco, CA"
+        "label": "Wicker Park Flat",
+        "address": { "number": "1550", "street": "N Damen Ave" },
+        "area": "Chicago, IL"
       }
     ],
     "radiusM": 500,
@@ -63,12 +63,12 @@ Trimmed response:
   "locations": [
     {
       "index": 0,
-      "label": "Hotel San Jose",
+      "label": "Congress Ave",
       "status": "ok",
       "resolved": {
-        "lat": 30.24998,
-        "lng": -97.74954,
-        "name": "1316 S CONGRESS AVE",
+        "lat": 30.26492,
+        "lng": -97.74314,
+        "name": "100 CONGRESS AVE",
         "area": {
           "id": "area-austin-tx",
           "name": "Austin",
@@ -79,16 +79,16 @@ Trimmed response:
       },
       "effectiveRadiusM": 500,
       "street": {
-        "name": "South Congress Avenue",
+        "name": "Congress Avenue",
         "class": "primary",
-        "distanceM": 38,
+        "distanceM": 32,
         "isArterial": true,
         "nearestArterial": {
-          "name": "South Congress Avenue",
+          "name": "Congress Avenue",
           "class": "primary",
-          "distanceM": 38
+          "distanceM": 32
         },
-        "cornerDistanceM": 64
+        "cornerDistanceM": 48
       },
       "block": {
         "radiusM": 250,
@@ -102,9 +102,9 @@ Trimmed response:
         "buildings": {
           "total": 112,
           "knownHeightCount": 41,
-          "medianHeightM": 6.4,
-          "p90HeightM": 11.2,
-          "maxHeightM": 18.0
+          "medianHeightM": 12.4,
+          "p90HeightM": 48.2,
+          "maxHeightM": 96.0
         },
         "crossingsCount500m": 27
       },
@@ -114,15 +114,15 @@ Trimmed response:
           "count500m": 11,
           "nearest": {
             "gers": "08f489...",
-            "name": "Jo's Coffee",
+            "name": "Houndstooth Coffee",
             "category": "cafe",
-            "distanceM": 22,
-            "walkM": 31
+            "distanceM": 38,
+            "walkM": 45
           }
         }
       },
       "demographics": {
-        "geoid": "484530013051",
+        "geoid": "484530011001",
         "vintage": "2020-2024",
         "source": "us_census_acs5",
         "population": 1712,
@@ -142,9 +142,9 @@ Trimmed response:
       },
       "terrain": {
         "source": "usgs_terrarium_dem",
-        "elevationM": 158,
-        "slopePct": 1.2,
-        "relief250mM": 5
+        "elevationM": 146,
+        "slopePct": 1.1,
+        "relief250mM": 4
       },
       "claimsCheck": [
         {
@@ -153,13 +153,13 @@ Trimmed response:
           "measured": {
             "streetClass": "primary",
             "isArterial": true,
-            "nearestArterialM": 38
+            "nearestArterialM": 32
           }
         },
         {
           "claim": "maxWalkM.cafe",
           "verdict": "supported",
-          "measured": { "walkM": 31, "thresholdM": 300 }
+          "measured": { "walkM": 45, "thresholdM": 300 }
         }
       ],
       "evidence": [
@@ -170,58 +170,58 @@ Trimmed response:
   "compare": {
     "quietestStreet": {
       "index": 1,
-      "label": "Mission House",
+      "label": "Wicker Park Flat",
       "streetClass": "tertiary",
       "nearestArterialM": 186
     },
     "farthestFromArterial": {
       "index": 1,
-      "label": "Mission House",
+      "label": "Wicker Park Flat",
       "distanceM": 186
     },
     "mostAmenities500m": {
       "index": 1,
-      "label": "Mission House",
+      "label": "Wicker Park Flat",
       "totalCount": 35
     },
     "highestResidentialShare": {
       "index": 1,
-      "label": "Mission House",
+      "label": "Wicker Park Flat",
       "share": 0.6
     },
     "lowestMedianHeightM": {
-      "index": 0,
-      "label": "Hotel San Jose",
-      "heightM": 6.4
+      "index": 1,
+      "label": "Wicker Park Flat",
+      "heightM": 9.2
     },
     "highestMedianIncomeUsd": {
       "index": 0,
-      "label": "Hotel San Jose",
+      "label": "Congress Ave",
       "incomeUsd": 134821
     },
     "lowestMedianRentUsd": {
       "index": 1,
-      "label": "Mission House",
-      "rentUsd": 1754
+      "label": "Wicker Park Flat",
+      "rentUsd": 2150
     },
     "highestTransitCommuteShare": {
       "index": 1,
-      "label": "Mission House",
-      "share": 0.114
+      "label": "Wicker Park Flat",
+      "share": 0.241
     },
     "flattestLocation": {
       "index": 1,
-      "label": "Mission House",
-      "slopePct": 1.2,
-      "relief250mM": 5
+      "label": "Wicker Park Flat",
+      "slopePct": 0.4,
+      "relief250mM": 2
     },
     "highestElevationM": {
-      "index": 0,
-      "label": "Hotel San Jose",
-      "elevationM": 158
+      "index": 1,
+      "label": "Wicker Park Flat",
+      "elevationM": 182
     },
     "closestByDomain": {
-      "cafe": { "index": 1, "label": "Mission House", "name": "Stable Cafe", "distanceM": 8, "walkM": 12 }
+      "cafe": { "index": 0, "label": "Congress Ave", "name": "Houndstooth Coffee", "distanceM": 38, "walkM": 45 }
     }
   },
   "evidence": [

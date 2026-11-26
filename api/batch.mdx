@@ -20,21 +20,21 @@ Every call charges `1` credit per `3` requested items and candidates (`1` to `5`
 
 | Mode | Items | Purpose |
 |---|---|---|
-| `"ground"` | `2`–`15` | Resolve each stop to coordinates, flag ambiguous or multi-branch names, compute a pairwise distance/walk matrix, and group nearby stops into walking clusters (`clusters` + `outliers`). |
-| `"sequence"` | `2`–`15` | Everything in `"ground"` plus an ordered non-zigzag `sequence` (`order`, `legs`, `totalDistanceM`, `totalWalkM`), optionally anchored at a `start` coordinate. |
-| `"meet"` | `2`–`5` | Compute a fair meeting zone (`geometricMedian`, `minimaxCenter`, and active dining/cafe `hub`) and return up to `5` venue `suggestions` with per-participant `distanceM` and `walkM`. |
+| `"ground"` | `2` to `15` | Resolve each stop to coordinates, flag ambiguous or multi-branch names, compute a pairwise distance/walk matrix, and group nearby stops into walking clusters (`clusters` + `outliers`). |
+| `"sequence"` | `2` to `15` | Everything in `"ground"` plus an ordered non-zigzag `sequence` (`order`, `legs`, `totalDistanceM`, `totalWalkM`), optionally anchored at a `start` coordinate. |
+| `"meet"` | `2` to `5` | Compute a fair meeting zone (`geometricMedian`, `minimaxCenter`, and active dining/cafe `hub`) and return up to `5` venue `suggestions` with per-participant `distanceM` and `walkM`. |
 
 ## Request body
 
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `mode` | `"ground" \| "sequence" \| "meet"` | Yes | Batch operation mode. |
-| `items` | array | Yes | `2`–`15` items (`2`–`5` for `meet`). Each item accepts optional unique `id` (`<= 64` chars, defaults to `item_1`…) and **exactly one** of `anchor` (`{ lat, lng }`), `address` (`{ number, street }`), `name` (`string`), `place` (`{ name }`), or free-text `query` (`<= 240` chars, auto-classified as inline `lat, lng`, street address, or named place), plus optional per-item `area`. If both `anchor` and `area` are sent on the same item, `anchor` takes precedence and a warning entry (`area_ignored_with_anchor`) is recorded in `evidence`. |
-| `area` | string | No | Default US area (`"San Francisco, CA"`, `"Manhattan, NY"`) applied to items without their own `area`. |
+| `items` | array | Yes | `2` to `15` items (`2` to `5` for `meet`). Each item accepts optional unique `id` (`<= 64` chars, defaults to `item_1`...) and **exactly one** of `anchor` (`{ lat, lng }`), `address` (`{ number, street }`), `name` (`string`), `place` (`{ name }`), or free-text `query` (`<= 240` chars, auto-classified as inline `lat, lng`, street address, or named place), plus optional per-item `area`. If both `anchor` and `area` are sent on the same item, `anchor` takes precedence and a warning entry (`area_ignored_with_anchor`) is recorded in `evidence`. |
+| `area` | string | No | Default US area (`"Austin, TX"`, `"Manhattan, NY"`) applied to items without their own `area`. |
 | `start` | `{ lat, lng }` | No | Optional starting point for `ground` or `sequence` mode only. |
-| `clusterRadiusM` | number | No | Walking cluster radius in meters (`200`–`3000`, default `800`). Valid for `ground` and `sequence` only. |
+| `clusterRadiusM` | number | No | Walking cluster radius in meters (`200` to `3000`, default `800`). Valid for `ground` and `sequence` only. |
 | `kind` | string | No | Category to search around the fair midpoint (`"cafe"`, `"restaurant"`, `"bar"`; default `"restaurant"`). Valid for `meet` only. |
-| `candidates` | array (`1`–`15`) | No | Caller-supplied meeting-venue candidates to score for physical fairness across participants (same shape as `items`, default IDs `cand_1`…). Valid for `meet` only. |
+| `candidates` | array (`1` to `15`) | No | Caller-supplied meeting-venue candidates to score for physical fairness across participants (same shape as `items`, default IDs `cand_1`...). Valid for `meet` only. |
 
 ## Examples
 
@@ -46,12 +46,12 @@ Every call charges `1` credit per `3` requested items and candidates (`1` to `5`
       -H "Authorization: Bearer $KVIRIA_KEY" \
       -d '{
         "mode": "sequence",
-        "area": "San Francisco, CA",
+        "area": "Midtown, New York, NY",
         "items": [
-          { "id": "tartine", "name": "Tartine Bakery" },
-          { "id": "stable", "name": "Stable Cafe" },
-          { "id": "four_barrel", "name": "Four Barrel Coffee" },
-          { "id": "dolores", "name": "Mission Dolores Park" }
+          { "id": "bryant_park", "name": "Bryant Park" },
+          { "id": "nypl", "name": "New York Public Library" },
+          { "id": "grand_central", "name": "Grand Central Terminal" },
+          { "id": "morgan_library", "name": "The Morgan Library & Museum" }
         ]
       }'
     ```
@@ -63,37 +63,37 @@ Every call charges `1` credit per `3` requested items and candidates (`1` to `5`
       "mode": "sequence",
       "items": [
         {
-          "id": "tartine",
+          "id": "bryant_park",
           "index": 0,
           "status": "resolved",
-          "name": "Tartine Bakery",
-          "category": "bakery",
-          "location": { "lat": 37.76142, "lng": -122.4241 },
-          "address": { "number": "600", "street": "Guerrero St" }
+          "name": "Bryant Park",
+          "category": "park",
+          "location": { "lat": 40.7536, "lng": -73.9832 },
+          "address": { "number": "42", "street": "W 42nd St" }
         }
       ],
       "matrix": [
-        { "fromId": "tartine", "toId": "dolores", "distanceM": 195, "walkM": 238 }
+        { "fromId": "bryant_park", "toId": "nypl", "distanceM": 135, "walkM": 170 }
       ],
       "clusters": [
         {
           "id": "cluster_1",
-          "memberIds": ["tartine", "dolores", "four_barrel", "stable"],
-          "centroid": { "lat": 37.7621, "lng": -122.4209 },
-          "spanM": 920,
-          "sequence": ["dolores", "tartine", "four_barrel", "stable"],
-          "totalLegDistanceM": 1412,
-          "totalLegWalkM": 1765
+          "memberIds": ["bryant_park", "nypl", "grand_central", "morgan_library"],
+          "centroid": { "lat": 40.7521, "lng": -73.9806 },
+          "spanM": 640,
+          "sequence": ["bryant_park", "nypl", "grand_central", "morgan_library"],
+          "totalLegDistanceM": 1120,
+          "totalLegWalkM": 1410
         }
       ],
       "outliers": [],
       "sequence": {
-        "order": ["dolores", "tartine", "four_barrel", "stable"],
+        "order": ["bryant_park", "nypl", "grand_central", "morgan_library"],
         "legs": [
-          { "fromId": "dolores", "toId": "tartine", "distanceM": 195, "walkM": 238 }
+          { "fromId": "bryant_park", "toId": "nypl", "distanceM": 135, "walkM": 170 }
         ],
-        "totalDistanceM": 1412,
-        "totalWalkM": 1765
+        "totalDistanceM": 1120,
+        "totalWalkM": 1410
       },
       "evidence": [
         { "test": "batch", "result": "pass", "reasonCode": "batch.all_resolved" }
@@ -109,11 +109,11 @@ Every call charges `1` credit per `3` requested items and candidates (`1` to `5`
       -H "Authorization: Bearer $KVIRIA_KEY" \
       -d '{
         "mode": "meet",
-        "area": "San Francisco, CA",
+        "area": "Manhattan, NY",
         "kind": "cafe",
         "items": [
-          { "id": "alice", "address": { "number": "2128", "street": "Folsom St" } },
-          { "id": "bob", "address": { "number": "1", "street": "Ferry Building" } }
+          { "id": "alice", "query": "350 5th Ave" },
+          { "id": "bob", "query": "SoHo" }
         ]
       }'
     ```
@@ -124,36 +124,36 @@ Every call charges `1` credit per `3` requested items and candidates (`1` to `5`
     {
       "mode": "meet",
       "items": [
-        { "id": "alice", "index": 0, "status": "resolved", "name": "2128 FOLSOM ST", "category": null, "location": { "lat": 37.76326, "lng": -122.4152 } },
-        { "id": "bob", "index": 1, "status": "resolved", "name": "1 FERRY BUILDING", "category": null, "location": { "lat": 37.7955, "lng": -122.3937 } }
+        { "id": "alice", "index": 0, "status": "resolved", "name": "350 5TH AVE", "category": null, "location": { "lat": 40.7484, "lng": -73.9857 } },
+        { "id": "bob", "index": 1, "status": "resolved", "name": "SoHo", "category": null, "location": { "lat": 40.7233, "lng": -74.0005 } }
       ],
       "meet": {
-        "geometricMedian": { "lat": 37.77938, "lng": -122.40445 },
-        "minimaxCenter": { "lat": 37.77938, "lng": -122.40445 },
+        "geometricMedian": { "lat": 40.73585, "lng": -73.9931 },
+        "minimaxCenter": { "lat": 40.73585, "lng": -73.9931 },
         "hub": {
-          "lat": 37.7791,
-          "lng": -122.4042,
+          "lat": 40.7359,
+          "lng": -73.9929,
           "source": "venue_cluster",
-          "nearbyCount": 24
+          "nearbyCount": 28
         },
-        "participantSpanM": 4046,
+        "participantSpanM": 3055,
         "corridorWalkMode": "street_graph",
         "kind": "cafe",
         "suggestions": [
           {
-            "name": "Split Pea Seduction",
+            "name": "La Colombe Coffee",
             "category": "cafe",
-            "location": { "lat": 37.77965, "lng": -122.4041 },
+            "location": { "lat": 40.7358, "lng": -73.9932 },
             "distancesFrom": [
-              { "participantId": "alice", "distanceM": 2060, "walkM": 2372 },
-              { "participantId": "bob", "distanceM": 1990, "walkM": 2369 }
+              { "participantId": "alice", "distanceM": 1536, "walkM": 1820 },
+              { "participantId": "bob", "distanceM": 1521, "walkM": 1805 }
             ],
-            "maxDistanceM": 2060,
-            "meanDistanceM": 2025,
-            "maxWalkM": 2372,
-            "meanWalkM": 2370.5,
-            "fairnessSpreadM": 3,
-            "nearbyKindCount250m": 42
+            "maxDistanceM": 1536,
+            "meanDistanceM": 1528.5,
+            "maxWalkM": 1820,
+            "meanWalkM": 1812.5,
+            "fairnessSpreadM": 15,
+            "nearbyKindCount250m": 34
           }
         ]
       },

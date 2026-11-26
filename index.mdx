@@ -16,10 +16,10 @@ Every endpoint and MCP tool returns structured JSON facts only; your agent speak
     Streamable HTTP MCP server with one-click OAuth or API key auth.
   </Card>
   <Card title="Agent endpoint (kviria)" icon="terminal" href="/api/agent">
-    Single-turn and multi-turn place, address, and corner resolution at `POST /v1/agent`.
+    Single-turn and multi-turn place, address, apartment, transit stop, and corner resolution at `POST /v1/agent`.
   </Card>
   <Card title="Profile endpoint (kviria_profile)" icon="map-pin" href="/api/profile">
-    Street class, arterial proximity, building context, walking amenities, and side-by-side comparisons at `POST /v1/profile`.
+    Street class, arterial proximity, building context, walking amenities, demographics, terrain, and side-by-side comparisons at `POST /v1/profile`.
   </Card>
   <Card title="Batch endpoint (kviria_batch)" icon="layers" href="/api/batch">
     Multi-stop grounding, walking sequences, and fair meeting points at `POST /v1/batch`.
@@ -33,9 +33,9 @@ Every endpoint and MCP tool returns structured JSON facts only; your agent speak
 
 | Tool / Endpoint | Use it when | Credits |
 |---|---|---|
-| `kviria` · [`POST /v1/agent`](/api/agent) | Finding a place, address, or intersection; answering nearby, across-the-street, next-to, or multi-turn follow-ups | `1` credit |
-| `kviria_profile` · [`POST /v1/profile`](/api/profile) | Auditing street frontage, arterial proximity, building context, walkable amenities, and claims across `1` to `5` US locations | `1` credit per location (`1`–`5`) |
-| `kviria_batch` · [`POST /v1/batch`](/api/batch) | Grounding a list of `2` to `15` stops, clustering and ordering a walking itinerary, or finding a fair meeting hub for `2` to `5` people | `1` credit per `3` items (`1`–`5`) |
+| `kviria` · [`POST /v1/agent`](/api/agent) | Finding a place, address, apartment building, transit stop, or intersection; answering nearby, across-the-street, next-to, or multi-turn follow-ups | `1` credit |
+| `kviria_profile` · [`POST /v1/profile`](/api/profile) | Auditing street frontage, arterial proximity, building context, walkable amenities, neighborhood demographics, bare-earth terrain, and claims across `1` to `5` US locations | `1` credit per location (`1` to `5`) |
+| `kviria_batch` · [`POST /v1/batch`](/api/batch) | Grounding a list of `2` to `15` stops, clustering and ordering a walking itinerary, or finding a fair meeting hub for `2` to `5` people | `1` credit per `3` items (`1` to `5`) |
 
 ## How a multi-turn conversation works
 

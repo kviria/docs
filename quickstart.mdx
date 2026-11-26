@@ -8,7 +8,7 @@ icon: rocket
   <Step title="Connect or get a key">
     <Tabs>
       <Tab title="MCP (One-click OAuth)">
-        No key or password is required for OAuth MCP clients. Add `https://api.kviria.com/mcp` and click **Allow** on the connect page to expose `kviria`, `kviria_profile`, and `kviria_batch`, or paste `Read https://kviria.com/setup.md to connect Kviria (voice, web, MCP, or HTTP) to my agent or project.` into your AI assistant. See [For agents](/agents) and [MCP server](/api/mcp).
+        No key or password is required for OAuth MCP clients. Add `https://api.kviria.com/mcp` and click **Allow** on the connect page to expose `kviria`, `kviria_profile`, and `kviria_batch`, or paste `Read https://kviria.com/setup.md and connect Kviria to my agent.` into your AI assistant. See [For agents](/agents) and [MCP server](/api/mcp).
       </Tab>
       <Tab title="HTTP API (Key)">
         Open [api.kviria.com/key](https://api.kviria.com/key) and click **Create a key**. Copy the `kvr_...` key (shown once).
@@ -149,12 +149,12 @@ icon: rocket
     ```
 
     <Note>
-      When you already have the user's GPS coordinate, include `"anchor": { "lat": 37.76326, "lng": -122.4152 }` on the first turn instead of an area name, and omit `anchor` on follow-up turns unless the user moves.
+      When you already have the user's GPS coordinate, include `"anchor": { "lat": 40.7484, "lng": -73.9857 }` on the first turn instead of an area name, and omit `anchor` on follow-up turns unless the user moves.
     </Note>
   </Step>
 
   <Step title="Profile locations or sequence multi-stop visits">
-    - Use [`POST /v1/profile`](/api/profile) (`kviria_profile`) to audit street class, arterial distance, building context, walking amenities, and location claims across `1` to `5` US places in one call.
+    - Use [`POST /v1/profile`](/api/profile) (`kviria_profile`) to audit street class, arterial distance, building context, walking amenities, neighborhood demographics, bare-earth terrain, and location claims across `1` to `5` US places in one call.
     - Use [`POST /v1/batch`](/api/batch) (`kviria_batch`) to ground a list of `2` to `15` stops, order a walking itinerary, or compute a fair meeting point for `2` to `5` people.
     - Load the agent system prompt from [kviria.com/skill.md](https://kviria.com/skill.md) and schemas from [api.kviria.com/openapi.json](https://api.kviria.com/openapi.json).
   </Step>

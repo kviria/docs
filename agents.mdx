@@ -18,7 +18,7 @@ Voice agents require low-latency turns (`< 500` ms typical US lookup), tolerance
 1. Expose a single tool calling `POST https://api.kviria.com/v1/agent` with `request: "ask"` and the caller's spoken words verbatim in `words` (plus `anchor` when GPS is available).
 2. Store the returned opaque `state` string in the active call session (`""` on turn 1, overwrite after every response, reset to `""` on `invalid_state`).
 3. Keep `Authorization: Bearer $KVIRIA_KEY` in the request header (`x-kviria-agent` is optional and defaults to `"direct"`).
-4. Kviria handles spoken places, street addresses, intersections, residential and apartment buildings, nationwide transit stops, and spoken decimal coordinates (`"cafes near 37.76326, -122.4152"`).
+4. Kviria handles spoken places, street addresses, intersections, residential and apartment buildings, and nationwide transit stops. Pass the caller's GPS coordinates in `anchor: { lat, lng }` whenever the device provides them.
 
 ```json Voice tool definition
 {
@@ -44,7 +44,7 @@ Voice agents require low-latency turns (`< 500` ms typical US lookup), tolerance
 ### Spoken phrasing rules
 
 - **Speak concisely:** Use 1 or 2 short sentences citing returned `name`, `address`, `walkM`, `relative` direction, or `nextTo` peers. Never read raw coordinates, `state` tokens, or `evidence` entries aloud unless asked.
-- **Confirmation (`one_unconfirmed`):** Ask a short yes/no question (for example, *"Did you mean Stable Cafe on 2128 Folsom Street?"*) and send the caller's reply back in `words` with `state`.
+- **Confirmation (`one_unconfirmed`):** Ask a short yes/no question (for example, *"Did you mean Devocion on Grand Street?"*) and send the caller's reply back in `words` with `state`.
 - **Multiple matches (`many`) or area narrowing (`unclear`):** Offer at most 2 or 3 options separated by `distinguishBy` or `areaOptions`, and pass the caller's spoken pick back in `words`.
 - **Not found (`none`):** State plainly what could not be found (or report `out_of_coverage`) and ask for a street, neighborhood, or city.
 

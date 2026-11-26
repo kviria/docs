@@ -20,8 +20,8 @@ Kviria is free to use with no credit card or payment option. Limits apply per Kv
 | Endpoint / MCP tool | Credits charged | Range |
 |---|---|---|
 | `POST /v1/agent` (`kviria`) | `1` credit per turn | `1` |
-| `POST /v1/profile` (`kviria_profile`) | `1` credit per requested location | `1`–`5` |
-| `POST /v1/batch` (`kviria_batch`) | `min(5, ceil((items + candidates) / 3))` credits | `1`–`5` |
+| `POST /v1/profile` (`kviria_profile`) | `1` credit per requested location | `1` to `5` |
+| `POST /v1/batch` (`kviria_batch`) | `min(5, ceil((items + candidates) / 3))` credits | `1` to `5` |
 
 <Note>
   Every answered request (`200 OK`) counts its credit weight, including follow-up picks, confirmations, `more`, and queries outside coverage (`out_of_coverage`). Invalid requests refused before execution (`400`), authentication failures (`401`), oversized payloads (`413`), and `GET /v1/account` never count toward your daily credits.

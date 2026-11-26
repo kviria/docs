@@ -21,7 +21,7 @@ All three tools advertise read-only MCP tool annotations (`readOnlyHint: true`, 
 ## Authentication (OAuth 2.1 or API key)
 
 - **OAuth 2.1 with PKCE (`S256`):** Unauthenticated calls to `https://api.kviria.com/mcp` return `401 Unauthorized` with a `WWW-Authenticate` header pointing to `https://api.kviria.com/.well-known/oauth-protected-resource/mcp`. Kviria supports **Client ID Metadata Documents (CIMD)** (`client_id_metadata_document_supported: true`) and **Dynamic Client Registration** (`/oauth/register`).
-- **One-click connect:** Approving access on `https://api.kviria.com/authorize` creates a free account (`600` credits/day) in one click — no email, password, or OTP required.
+- **One-click connect:** Approving access on `https://api.kviria.com/authorize` creates a free account (`600` credits/day) in one click, with no email, password, or OTP required.
 - **Static API key:** Clients that send fixed headers can pass `Authorization: Bearer kvr_...` from [api.kviria.com/key](https://api.kviria.com/key).
 
 ## Fastest setup (one-line onboarding prompt)

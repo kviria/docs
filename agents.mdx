@@ -15,10 +15,12 @@ Kviria gives any AI agent structured US location facts over HTTP and MCP (`2.1.0
 
 Voice agents require low-latency turns (`< 500` ms typical US lookup), tolerance for natural speech, and concise spoken disambiguation.
 
-1. Expose a single tool calling `POST https://api.kviria.com/v1/agent` with `request: "ask"` and the caller's spoken words verbatim in `words` (plus `anchor` when GPS is available).
-2. Store the returned opaque `state` string in the active call session (`""` on turn 1, overwrite after every response, reset to `""` on `invalid_state`).
-3. Keep `Authorization: Bearer $KVIRIA_KEY` in the request header (`x-kviria-agent` is optional and defaults to `"direct"`).
-4. Kviria handles spoken places, street addresses, intersections, residential and apartment buildings, and nationwide transit stops. Pass the caller's GPS coordinates in `anchor: { lat, lng }` whenever the device provides them.
+- **Fastest setup (Streamable HTTP MCP):** Connect directly to `https://api.kviria.com/mcp` with `Authorization: Bearer $KVIRIA_KEY`. See step-by-step setup tabs for **Vapi**, **Retell AI**, **ElevenLabs**, and **LiveKit** in [Voice platforms](/voice).
+- **Direct HTTP option:** Expose a single tool calling `POST https://api.kviria.com/v1/agent` with `request: "ask"` (or omit `request` when sending `words`), the caller's spoken words verbatim in `words`, and `anchor` when GPS is available.
+
+1. Store the returned opaque `state` string in the active call session (`""` on turn 1, overwrite after every response, reset to `""` on `invalid_state`).
+2. Keep `Authorization: Bearer $KVIRIA_KEY` in the request header (`x-kviria-agent` is optional and defaults to `"direct"`).
+3. Kviria handles spoken places, street addresses, intersections, residential and apartment buildings, and nationwide transit stops. Pass the caller's GPS coordinates in `anchor: { lat, lng }` whenever the device provides them.
 
 ```json Voice tool definition
 {
@@ -36,7 +38,7 @@ Voice agents require low-latency turns (`< 500` ms typical US lookup), tolerance
         "required": ["lat", "lng"]
       }
     },
-    "required": ["request", "words"]
+    "required": ["words"]
   }
 }
 ```

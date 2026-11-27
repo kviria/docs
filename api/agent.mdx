@@ -19,11 +19,11 @@ The full JSON Schema is published at [kviria.com/tool-definition.json](https://k
 
 ## Request body
 
-Send the user's message directly with `request: "ask"` and `words`, or send structured fields parsed by your agent. In `request: "ask"`, inline decimal coordinates such as `"cafes near 40.7484, -73.9857"` are extracted automatically when `anchor` is omitted.
+Send the user's message directly with `words` (`request` defaults to `"ask"` when omitted), or send structured fields parsed by your agent. In `ask` turns, inline decimal coordinates such as `"cafes near 40.7484, -73.9857"` are extracted automatically when `anchor` is omitted.
 
 | Field | Type | When | Description |
 |---|---|---|---|
-| `request` | string | Required | `ask`, `find`, `search`, `near`, `across`, `next_to`, `corner`, `street_end`, `resolve`, `pick`, `confirm`, or `more` |
+| `request` | string | Optional (inferred) | `ask`, `find`, `search`, `near`, `across`, `next_to`, `corner`, `street_end`, `resolve`, `pick`, `confirm`, or `more`. Inferred automatically when omitted (defaults to `ask` when `words` is sent) |
 | `words` | string | `ask`, `resolve` | The user's message (`ask`, including optional inline `lat, lng` coordinates) or named target in an area (`resolve`), up to `500` characters |
 | `state` | string | Every call | The `state` string from the previous response (`""` on the first turn) |
 | `anchor` | `{ lat, lng }` | First turn (position) | The user's current WGS 84 position. Omit on follow-up turns unless the user moved |

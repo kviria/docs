@@ -16,7 +16,7 @@ Kviria's Model Context Protocol (MCP) server (`2.1.0`) runs over **streamable HT
 | `kviria_profile` | [`POST /v1/profile`](/api/profile) | Profile and compare street class, arterial distance, building context, walking amenities, neighborhood demographics, bare-earth terrain, and location claims for `1` to `5` US locations |
 | `kviria_batch` | [`POST /v1/batch`](/api/batch) | Ground `2` to `15` stops, order a walking itinerary, or compute a fair meeting point for `2` to `5` people |
 
-All three tools advertise read-only MCP tool annotations (`readOnlyHint: true`, `destructiveHint: false`, `openWorldHint: false`; `idempotentHint: true` on stateless `kviria_profile` and `kviria_batch`, `false` on stateful `kviria`) and return structured JSON content (`structuredContent`) alongside plain JSON text.
+All three tools advertise read-only MCP tool annotations (`readOnlyHint: true`, `destructiveHint: false`, `openWorldHint: false`; `idempotentHint: true` on stateless `kviria_profile` and `kviria_batch`, `false` on stateful `kviria`) and return structured JSON content (`structuredContent`) alongside plain JSON text. During `initialize`, the server also returns concise `instructions` so voice and autonomous MCP clients work out of the box with no extra prompt boilerplate.
 
 ## Authentication (OAuth 2.1 or API key)
 
@@ -89,7 +89,7 @@ Read https://kviria.com/setup.md and connect Kviria to my agent.
   </Tab>
 
   <Tab title="API key header">
-    For headless agents or MCP clients that send static headers, pass a key from [api.kviria.com/key](https://api.kviria.com/key):
+    For voice platforms ([Voice platforms](/voice)) or headless MCP clients that send static headers, pass a key from [api.kviria.com/key](https://api.kviria.com/key):
 
     ```json mcp.json
     {

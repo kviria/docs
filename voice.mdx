@@ -1,0 +1,97 @@
+---
+title: Voice platforms
+description: Connect Vapi, Retell AI, ElevenLabs, and LiveKit to Kviria in under a minute over Streamable HTTP MCP.
+icon: phone
+---
+
+Connect any voice or realtime audio platform directly to Kviria's Streamable HTTP MCP endpoint (`https://api.kviria.com/mcp`) with a free API key (`600` credits/day, `60` requests/min, no credit card required). Typical single-turn US lookups return in under `500` ms.
+
+- **MCP Server URL:** `https://api.kviria.com/mcp`
+- **Transport:** Streamable HTTP (`POST` + SSE)
+- **Header:** `Authorization: Bearer <KVIRIA_KEY>` (mint a free key at [api.kviria.com/key](https://api.kviria.com/key))
+- **Tools exposed:** `kviria`, `kviria_profile`, `kviria_batch` (all read-only)
+
+<Note>
+**Why Bearer keys instead of OAuth on voice platforms?** Kviria supports interactive OAuth 2.1 + PKCE for desktop and IDE MCP clients. Voice servers run headless mid-call without a browser popup, so passing a server-side `Authorization: Bearer <KVIRIA_KEY>` header avoids interactive auth flows and adds zero token-refresh overhead.
+</Note>
+
+## Platform setup
+
+<Tabs>
+  <Tab title="Vapi">
+    Connect Kviria directly from the Vapi dashboard with no webhook server or custom proxy:
+
+    1. Open **BUILD -> Tools -> Create Tool -> MCP**.
+    2. Set **Tool Name** to `Kviria`, **Server URL** to `https://api.kviria.com/mcp`, and **Timeout** to `10` seconds.
+    3. Under **Authorization -> Credential**, click **+ Create Credential -> New Custom Credential**:
+       - **Authentication Type:** `Bearer Token`
+       - **Credential Name:** `Kviria API Key`
+       - **Header Name:** `Authorization`
+       - **Include Bearer Prefix:** **ON**
+       - **Token:** paste your raw `kvr_...` key (do not type `Bearer ` when **Include Bearer Prefix** is ON)
+       - **Enable Encryption:** `Disabled`
+       - Click **Save**, then select the credential.
+    4. Under **MCP Settings**, keep **Protocol** set to **Streamable HTTP (SHTTP)**.
+    5. Leave **Messages** empty so Vapi does not speak filler phrases during sub-500 ms lookups.
+    6. Click **Publish**, then attach `Kviria` under **Assistants -> Tools** and click **Publish** on the assistant.
+  </Tab>
+
+  <Tab title="Retell AI">
+    Retell AI single-prompt agents connect to Kviria's MCP server in two steps:
+
+    1. Open your agent and go to **MCPs -> + Add MCP** in the right panel:
+       - **Name:** `kviria`
+       - **URL:** `https://api.kviria.com/mcp`
+       - **Timeout (ms):** `10000`
+       - **Headers (+ New key value pair):** `Authorization` = `Bearer <KVIRIA_KEY>`
+       - Click **Save**.
+    2. **Enable the tools (required):** Saving the MCP server does not auto-enable its tools. Click **Add Tool** on the `kviria` MCP card, select `kviria`, `kviria_profile`, and `kviria_batch` under **Tool Access Scope**, keep **Execution mode** on `Wait for completion` with **Talk while waiting** and **Play typing sound** unchecked, and click **Save**.
+  </Tab>
+
+  <Tab title="ElevenLabs">
+    ElevenLabs connects natively over Streamable HTTP MCP:
+
+    1. Open your agent and go to **Tools -> MCP -> Add server -> + New Custom MCP Server**.
+    2. Set **Name** to `Kviria`.
+    3. Under **Server Configuration**:
+       - **Server type:** switch from `SSE` to **Streamable HTTP**
+       - **Server URL:** `Type: Value`, `URL: https://api.kviria.com/mcp`
+       - **HTTP Headers -> Add header:** `Authorization` = `Bearer <KVIRIA_KEY>` (or store your key in a workspace secret)
+    4. Under **Tool Approval Mode**, choose **No Approval** (all three Kviria tools are read-only).
+    5. Under **Tool Settings**:
+       - **Pre-tool speech:** `Off` (prevents repeated *"I'll look that up for you"* filler speech before fast responses)
+       - **Interruptions:** `Allow`
+       - **Execution mode:** `Immediate`
+       - **Tool call sound:** `None`
+    6. Check **I trust this server**, click **Test Connection**, click **Add Server**, and click **Publish**.
+
+    <Tip>
+    **Zero Retention Mode or HIPAA workspaces:** ElevenLabs disables external MCP servers when Zero Retention Mode or HIPAA compliance is active. In those workspaces, configure a **Webhook Tool** pointing to `POST https://api.kviria.com/v1/agent` with header `Authorization: Bearer <KVIRIA_KEY>`, a `words` string parameter, and a `kviria_state` dynamic variable initialized to `""` and updated via response assignments from `state`.
+    </Tip>
+  </Tab>
+
+  <Tab title="LiveKit">
+    Connect Kviria directly inside LiveKit Builder with no custom code or proxy:
+
+    1. Open your agent in **Agent -> Builder** and select the **Actions** tab.
+    2. Under **MCP servers**, click **+ Add MCP server**:
+       - **Server name:** `Kviria`
+       - **URL:** `https://api.kviria.com/mcp`
+       - **Headers -> + Add header:** set **Name** to `Authorization` and **Value** to `Bearer <KVIRIA_KEY>`
+    3. Save the server.
+    4. Click **START CALL** under **Live preview** (or **Test in Console**) to test, then click **Deploy agent**.
+  </Tab>
+</Tabs>
+
+## Optional voice style lines
+
+Kviria's MCP server sends usage guidance during `initialize`, defaults omitted `request` to `"ask"` whenever `words` is sent, and resolves natural spoken follow-ups such as *"what is the next building after that"*, *"left"* / *"right"*, *"across the street"*, and *"I'm facing ..."*.
+
+Most agents work out of the box with no Kviria-specific schema instructions. If your agent starts with a bare default prompt (such as *"You are a helpful assistant."*), adding two short spoken-style lines keeps calls crisp:
+
+```text Optional voice style lines
+Use Kviria for US places, addresses, streets, nearby spots, residential buildings, and transit stops.
+Answer in 1 or 2 short spoken sentences from Kviria's returned facts only: never read raw coordinates, IDs, or state tokens aloud, and only mention walking distance or direction if the caller shared their location or asked relative to another place.
+```
+
+For spoken decision phrasing (`one_unconfirmed`, `many`, `unclear`, `none`) and direct HTTP fallback (`POST https://api.kviria.com/v1/agent`), see [For agents](/agents#spoken-phrasing-rules) and [Agent endpoint](/api/agent).

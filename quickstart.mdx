@@ -19,7 +19,7 @@ icon: rocket
   </Step>
 
   <Step title="Send Turn 1 (area search without a GPS pin)">
-    Send the user's message with `request: "ask"` and `words`. Save the returned `state` for the next turn.
+    Send a concise natural-language `query`. Save the returned `state` for the next turn.
 
     <CodeGroup>
     ```bash cURL
@@ -27,15 +27,14 @@ icon: rocket
       -H "Content-Type: application/json" \
       -H "Authorization: Bearer $KVIRIA_KEY" \
       -d '{
-        "request": "ask",
-        "words": "a cafe in Williamsburg, Brooklyn",
+        "query": "a cafe in Williamsburg, Brooklyn",
         "state": ""
       }'
     ```
 
     ```typescript TypeScript
     async function askKviria(
-      words: string,
+      query: string,
       state = "",
       anchor?: { lat: number; lng: number },
     ) {
@@ -46,8 +45,7 @@ icon: rocket
           Authorization: `Bearer ${process.env.KVIRIA_KEY}`,
         },
         body: JSON.stringify({
-          request: "ask",
-          words,
+          query,
           state,
           ...(anchor ? { anchor } : {}),
         }),
@@ -60,8 +58,8 @@ icon: rocket
     import os
     import requests
 
-    def ask_kviria(words: str, state: str = "", anchor: dict | None = None) -> dict:
-        body = {"request": "ask", "words": words, "state": state}
+    def ask_kviria(query: str, state: str = "", anchor: dict | None = None) -> dict:
+        body = {"query": query, "state": state}
         if anchor is not None:
             body["anchor"] = anchor
         res = requests.post(
@@ -121,8 +119,7 @@ icon: rocket
       -H "Content-Type: application/json" \
       -H "Authorization: Bearer $KVIRIA_KEY" \
       -d '{
-        "request": "ask",
-        "words": "the first one",
+        "query": "the first one",
         "state": "AXbU2v9QmZ3k8sJt0LrE4wHn7cYq1pKf6gNa5oTd"
       }'
     ```

@@ -4,7 +4,7 @@ description: Connect voice agents, autonomous web agents, MCP clients, and HTTP 
 icon: bot
 ---
 
-Kviria gives any AI agent structured US location facts over HTTP and MCP (`2.1.0`), with `600` free credits per day and `60` requests per minute. Every response is data only; your agent writes or speaks the reply.
+Kviria gives any AI agent structured US location facts over HTTP and MCP (`3.0.0`), with `600` free credits per day and `60` requests per minute. Every response is data only; your agent writes or speaks the reply.
 
 - **Plain-text / Markdown agent guide:** [kviria.com/setup.md](https://kviria.com/setup.md)
 - **Full wire contract and system prompt:** [kviria.com/skill.md](https://kviria.com/skill.md)
@@ -16,29 +16,29 @@ Kviria gives any AI agent structured US location facts over HTTP and MCP (`2.1.0
 Voice agents require low-latency turns (`< 500` ms typical US lookup), tolerance for natural speech, and concise spoken disambiguation.
 
 - **Fastest setup (Streamable HTTP MCP):** Connect directly to `https://api.kviria.com/mcp` with `Authorization: Bearer $KVIRIA_KEY`. See step-by-step setup tabs for **Vapi**, **Retell AI**, **ElevenLabs**, and **LiveKit** in [Voice platforms](/voice).
-- **Direct HTTP option:** Expose a single tool calling `POST https://api.kviria.com/v1/agent` with `request: "ask"` (or omit `request` when sending `words`), the caller's spoken words verbatim in `words`, and `anchor` when GPS is available.
+- **Direct HTTP option:** Expose a single tool calling `POST https://api.kviria.com/v1/agent` with a concise natural-language `query` and optional `anchor` (when GPS is available) or `area` (when targeting another city or neighborhood).
 
 1. Store the returned opaque `state` string in the active call session (`""` on turn 1, overwrite after every response, reset to `""` on `invalid_state`).
 2. Keep `Authorization: Bearer $KVIRIA_KEY` in the request header (`x-kviria-agent` is optional and defaults to `"direct"`).
-3. Kviria handles spoken places, street addresses, intersections, residential and apartment buildings, and nationwide transit stops. Pass the caller's GPS coordinates in `anchor: { lat, lng }` whenever the device provides them.
+3. Kviria handles spoken places, street addresses, intersections, residential and apartment buildings, and nationwide transit stops. Pass the caller's GPS coordinates in `anchor: { lat, lng }` whenever the device provides them, or pass `area` when the caller asks about a different city or neighborhood.
 
 ```json Voice tool definition
 {
   "type": "function",
   "name": "kviria",
-  "description": "Look up real US places, addresses, intersections, apartment buildings, or transit stops from the caller's spoken request. Pass the caller's words verbatim in words.",
+  "description": "Look up real US places, addresses, intersections, apartment buildings, or transit stops from a concise natural-language query.",
   "parameters": {
     "type": "object",
     "properties": {
-      "request": { "type": "string", "enum": ["ask"] },
-      "words": { "type": "string", "description": "The caller's spoken location message verbatim." },
+      "query": { "type": "string", "description": "Concise natural-language location query or follow-up (for example, 'cafe in Williamsburg, Brooklyn', 'the first one', or 'what is across the street?')." },
+      "area": { "type": "string", "description": "Optional US city, borough, neighborhood, or ZIP when searching outside the user's current position." },
       "anchor": {
         "type": "object",
         "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } },
         "required": ["lat", "lng"]
       }
     },
-    "required": ["words"]
+    "required": ["query"]
   }
 }
 ```
@@ -46,8 +46,8 @@ Voice agents require low-latency turns (`< 500` ms typical US lookup), tolerance
 ### Spoken phrasing rules
 
 - **Speak concisely:** Use 1 or 2 short sentences citing returned `name`, `address`, `walkM`, `relative` direction, or `nextTo` peers. Never read raw coordinates, `state` tokens, or `evidence` entries aloud unless asked.
-- **Confirmation (`one_unconfirmed`):** Ask a short yes/no question (for example, *"Did you mean Devocion on Grand Street?"*) and send the caller's reply back in `words` with `state`.
-- **Multiple matches (`many`) or area narrowing (`unclear`):** Offer at most 2 or 3 options separated by `distinguishBy` or `areaOptions`, and pass the caller's spoken pick back in `words`.
+- **Confirmation (`one_unconfirmed`):** Ask a short yes/no question (for example, *"Did you mean Devocion on Grand Street?"*) and send the caller's reply back in `query` with `state`.
+- **Multiple matches (`many`) or area narrowing (`unclear`):** Offer at most 2 or 3 options separated by `distinguishBy` or `areaOptions`, and pass the caller's spoken pick back in `query`.
 - **Not found (`none`):** State plainly what could not be found (or report `out_of_coverage`) and ask for a street, neighborhood, or city.
 
 ## Autonomous and web agents
@@ -57,7 +57,7 @@ Every discovery manifest and Markdown contract on `kviria.com` is public over HT
 - Fetch [kviria.com/setup.md](https://kviria.com/setup.md) and [kviria.com/skill.md](https://kviria.com/skill.md) for the complete calling rules.
 - Ask the human once to mint a free `KVIRIA_KEY` at [api.kviria.com/key](https://api.kviria.com/key) or approve one-click OAuth at `https://api.kviria.com/mcp`. Do not attempt to automate the human verification step on `/key`.
 - Check key validity and remaining daily credits for `0` credits with `GET https://api.kviria.com/v1/account`.
-- Use free-text `query` items (with optional top-level `area`) on [`POST /v1/profile`](/api/profile) and [`POST /v1/batch`](/api/batch), and inline decimal coordinates in `request: "ask"` on [`POST /v1/agent`](/api/agent).
+- Send unified `query` or `anchor` inputs across all three tools: [`POST /v1/agent`](/api/agent) (including inline decimal coordinates in `query`), [`POST /v1/profile`](/api/profile), and [`POST /v1/batch`](/api/batch).
 
 ## MCP and HTTP tool-calling SDKs
 

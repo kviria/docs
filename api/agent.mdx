@@ -19,26 +19,14 @@ The full JSON Schema is published at [kviria.com/tool-definition.json](https://k
 
 ## Request body
 
-Send the user's message directly with `words` (`request` defaults to `"ask"` when omitted), or send structured fields parsed by your agent. In `ask` turns, inline decimal coordinates such as `"cafes near 40.7484, -73.9857"` are extracted automatically when `anchor` is omitted.
+Send a single concise natural-language `query` on every turn. Kviria automatically classifies places, categories, street addresses, intersections, spatial relations (`near`, `across`, `next to`, left/right, `ahead`/`behind`, `facing`, street exclusions), list picks (`"the first one"`), confirmations (`"yes"` / `"no"`), pagination (`"more"`), and inline decimal coordinates (`"cafes near 40.7484, -73.9857"`).
 
 | Field | Type | When | Description |
 |---|---|---|---|
-| `request` | string | Optional (inferred) | `ask`, `find`, `search`, `near`, `across`, `next_to`, `corner`, `street_end`, `resolve`, `pick`, `confirm`, or `more`. Inferred automatically when omitted (defaults to `ask` when `words` is sent) |
-| `words` | string | `ask`, `resolve` | The user's message (`ask`, including optional inline `lat, lng` coordinates) or named target in an area (`resolve`), up to `500` characters |
+| `query` | string | Required (`1` to `500` chars) | Concise natural-language location query or follow-up (`"cafe in Williamsburg, Brooklyn"`, `"350 5th Ave, New York"`, `"what is across the street?"`, `"the first one"`, `"yes"`, `"more"`, or inline `"lat, lng"` coordinates) |
 | `state` | string | Every call | The `state` string from the previous response (`""` on the first turn) |
-| `anchor` | `{ lat, lng }` | First turn (position) | The user's current WGS 84 position. Omit on follow-up turns unless the user moved |
-| `area` | string | First turn (area) | Area to search (`"Brooklyn"`, `"Austin, TX"`) when not searching around a GPS pin. Never send with `anchor` |
-| `kind` | string | `search`, `near`, `next_to`, `resolve` | Category in the user's own words (`"coffee shop"`, `"apartment"`, `"bus stop"`, `"subway station"`, `"watch repair"`) |
-| `place` | `{ name }` or `{ ref }` | `find`, `near`, `across`, `next_to` | A place name as spoken, or the `gers` ID returned on an earlier turn |
-| `address` | `{ number, street }` | `find` | Street number and street name |
-| `streets` | `[string, string]` | `corner`, `find`, `near` | The two intersecting streets of a corner |
-| `street` | string | `across`, `next_to`, `street_end` | Street named by the user |
-| `streetNot` | string | `search`, `near`, `across`, `next_to` | Street excluded by the user (never combine with `street`) |
-| `side` | `"left" \| "right"` | `next_to` | Side of the named place as seen facing its entrance |
-| `facing` | object | Optional | What the user faces (`name`, `address`, `streets`, or `street`) |
-| `toward` | string | Optional | Direction relative to the user: `"ahead"`, `"behind"`, `"left"`, or `"right"` |
-| `pick` | integer | `pick` | 1-based index chosen from the last candidate list or `areaOptions` |
-| `answer` | `"yes" \| "no"` | `confirm` | User's confirmation for `one_unconfirmed` |
+| `anchor` | `{ lat, lng }` | Optional (position) | The user's current WGS 84 position. Send on turn 1 when GPS is available; omit on follow-up turns unless the user moved |
+| `area` | string | Optional (`<= 120` chars) | Explicit US city, borough, neighborhood, or ZIP (`"Brooklyn"`, `"Austin, TX"`). Takes precedence over `anchor` when switching away from a device GPS pin |
 | `rangeM` | integer | Optional | Search radius in meters (`250` to `500`, default `500`) |
 | `confirmation` | `"on" \| "off"` | Optional | `"on"` (default) holds partial matches as `one_unconfirmed`; `"off"` resolves immediately |
 | `heading` | number | Optional | Client compass heading in degrees (`0` to `360`) |

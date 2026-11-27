@@ -8,7 +8,7 @@ icon: plug
 https://api.kviria.com/mcp
 ```
 
-Kviria's Model Context Protocol (MCP) server (`2.1.0`) runs over **streamable HTTP** and exposes **three read-only tools** backed by the exact same contracts, limits, and validation as the HTTP API:
+Kviria's Model Context Protocol (MCP) server (`3.0.0`) runs over **streamable HTTP** and exposes **three read-only tools** backed by the exact same contracts, limits, and validation as the HTTP API:
 
 | Tool | Equivalent endpoint | What it does |
 |---|---|---|
@@ -113,7 +113,7 @@ Read https://kviria.com/setup.md and connect Kviria to my agent.
 - Onboarding guide: `https://kviria.com/setup.md`
 - Protected resource metadata (RFC 9728): `https://api.kviria.com/.well-known/oauth-protected-resource/mcp`
 - Authorization server metadata (RFC 8414): `https://api.kviria.com/.well-known/oauth-authorization-server`
-- Official MCP Registry: `com.kviria/kviria` (`2.1.0`)
+- Official MCP Registry: `com.kviria/kviria` (`3.0.0`)
 
 <Note>
   **Notes for MCP callers:** When calling `kviria`, omit `anchor` on follow-up turns if the user has not moved (never send an empty `anchor: {}` object), and pass the returned `state` string into the next `kviria` call. `kviria_profile` and `kviria_batch` are stateless single-shot tools. MCP requests do not need `x-kviria-agent`.

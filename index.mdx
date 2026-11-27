@@ -39,7 +39,7 @@ Every endpoint and MCP tool returns structured JSON facts only; your agent speak
 
 ## How a multi-turn conversation works
 
-Every `/v1/agent` (`kviria`) call sends `request` (`"ask"` with the user's message in `words`, or structured fields) plus the signed `state` from the previous response.
+Every `/v1/agent` (`kviria`) call sends a concise natural-language `query` plus the signed `state` from the previous response.
 
 <Steps>
   <Step title="Turn 1: Ask">
@@ -47,8 +47,7 @@ Every `/v1/agent` (`kviria`) call sends `request` (`"ask"` with the user's messa
 
     ```json Request
     {
-      "request": "ask",
-      "words": "a cafe in Williamsburg, Brooklyn",
+      "query": "a cafe in Williamsburg, Brooklyn",
       "state": ""
     }
     ```
@@ -60,8 +59,7 @@ Every `/v1/agent` (`kviria`) call sends `request` (`"ask"` with the user's messa
 
     ```json Request
     {
-      "request": "ask",
-      "words": "the first one",
+      "query": "the first one",
       "state": "<STATE_1>"
     }
     ```
@@ -73,8 +71,7 @@ Every `/v1/agent` (`kviria`) call sends `request` (`"ask"` with the user's messa
 
     ```json Request
     {
-      "request": "ask",
-      "words": "what is across the street from it?",
+      "query": "what is across the street from it?",
       "state": "<STATE_2>"
     }
     ```

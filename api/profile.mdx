@@ -20,7 +20,7 @@ Every call charges `1` credit per requested location (`1` to `5` credits). See [
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `locations` | array (`1` to `5`) | Yes | Locations to profile. Each item accepts optional `label` (`<= 80` chars) and **exactly one** of `anchor` (`{ lat, lng }`), `address` (`{ number, street }` + optional `area`), `place` (`{ name }` + optional `area`), or free-text `query` (`<= 240` chars, auto-classified as inline `lat, lng`, street address, or named place). If both `anchor` and `area` are sent on the same item, `anchor` takes precedence and a warning entry (`area_ignored_with_anchor`) is recorded in `evidence`. |
+| `locations` | array (`1` to `5`) | Yes | Locations to profile. Each item accepts optional `label` (`<= 80` chars), optional `area` (`<= 120` chars), and **exactly one** of `query` (`<= 240` chars, auto-classified as inline `lat, lng`, street address, or named place/neighborhood) or `anchor` (`{ lat, lng }`). If both `anchor` and `area` are sent on the same item, `anchor` takes precedence and a warning entry (`area_ignored_with_anchor`) is recorded in `evidence`. |
 | `area` | string | No | Optional default US area (`"Austin, TX"`, `"Brooklyn, NY"`) inherited by any location item that omits its own `area`. |
 | `radiusM` | `250 \| 500` | No | Amenity scan radius in meters (default `500`; sparse areas may expand automatically). |
 | `domains` | string[] | No | Subset of amenity domains to scan (defaults to all `9`): `grocery`, `cafe`, `restaurant`, `bar`, `park`, `pharmacy`, `fitness`, `school`, `transit`. |
@@ -36,12 +36,12 @@ curl -X POST "https://api.kviria.com/v1/profile" \
     "locations": [
       {
         "label": "Congress Ave",
-        "address": { "number": "100", "street": "Congress Ave" },
+        "query": "100 Congress Ave",
         "area": "Austin, TX"
       },
       {
         "label": "Wicker Park Flat",
-        "address": { "number": "1550", "street": "N Damen Ave" },
+        "query": "1550 N Damen Ave",
         "area": "Chicago, IL"
       }
     ],

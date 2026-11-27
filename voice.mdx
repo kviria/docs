@@ -66,7 +66,7 @@ Connect any voice or realtime audio platform directly to Kviria's Streamable HTT
     6. Check **I trust this server**, click **Test Connection**, click **Add Server**, and click **Publish**.
 
     <Tip>
-    **Zero Retention Mode or HIPAA workspaces:** ElevenLabs disables external MCP servers when Zero Retention Mode or HIPAA compliance is active. In those workspaces, configure a **Webhook Tool** pointing to `POST https://api.kviria.com/v1/agent` with header `Authorization: Bearer <KVIRIA_KEY>`, a `words` string parameter, and a `kviria_state` dynamic variable initialized to `""` and updated via response assignments from `state`.
+    **Zero Retention Mode or HIPAA workspaces:** ElevenLabs disables external MCP servers when Zero Retention Mode or HIPAA compliance is active. In those workspaces, configure a **Webhook Tool** pointing to `POST https://api.kviria.com/v1/agent` with header `Authorization: Bearer <KVIRIA_KEY>`, a `query` string parameter, and a `kviria_state` dynamic variable initialized to `""` and updated via response assignments from `state`.
     </Tip>
   </Tab>
 
@@ -85,7 +85,7 @@ Connect any voice or realtime audio platform directly to Kviria's Streamable HTT
 
 ## Optional voice style lines
 
-Kviria's MCP server sends usage guidance during `initialize`, defaults omitted `request` to `"ask"` whenever `words` is sent, and resolves natural spoken follow-ups such as *"what is the next building after that"*, *"left"* / *"right"*, *"across the street"*, and *"I'm facing ..."*.
+Kviria's MCP server sends usage guidance during `initialize`, takes a single concise natural-language `query` across all location turns, and resolves natural spoken follow-ups such as *"what is the next building after that"*, *"left"* / *"right"*, *"across the street"*, and *"I'm facing ..."*.
 
 Most agents work out of the box with no Kviria-specific schema instructions. If your agent starts with a bare default prompt (such as *"You are a helpful assistant."*), adding two short spoken-style lines keeps calls crisp:
 

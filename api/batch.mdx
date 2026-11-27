@@ -29,7 +29,7 @@ Every call charges `1` credit per `3` requested items and candidates (`1` to `5`
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `mode` | `"ground" \| "sequence" \| "meet"` | Yes | Batch operation mode. |
-| `items` | array | Yes | `2` to `15` items (`2` to `5` for `meet`). Each item accepts optional unique `id` (`<= 64` chars, defaults to `item_1`...) and **exactly one** of `anchor` (`{ lat, lng }`), `address` (`{ number, street }`), `name` (`string`), `place` (`{ name }`), or free-text `query` (`<= 240` chars, auto-classified as inline `lat, lng`, street address, or named place), plus optional per-item `area`. If both `anchor` and `area` are sent on the same item, `anchor` takes precedence and a warning entry (`area_ignored_with_anchor`) is recorded in `evidence`. |
+| `items` | array | Yes | `2` to `15` items (`2` to `5` for `meet`). Each item accepts optional unique `id` (`<= 64` chars, defaults to `item_1`...), optional per-item `area`, and **exactly one** of `query` (`<= 240` chars, auto-classified as inline `lat, lng`, street address, or named place/neighborhood) or `anchor` (`{ lat, lng }`). If both `anchor` and `area` are sent on the same item, `anchor` takes precedence and a warning entry (`area_ignored_with_anchor`) is recorded in `evidence`. |
 | `area` | string | No | Default US area (`"Austin, TX"`, `"Manhattan, NY"`) applied to items without their own `area`. |
 | `start` | `{ lat, lng }` | No | Optional starting point for `ground` or `sequence` mode only. |
 | `clusterRadiusM` | number | No | Walking cluster radius in meters (`200` to `3000`, default `800`). Valid for `ground` and `sequence` only. |
@@ -48,10 +48,10 @@ Every call charges `1` credit per `3` requested items and candidates (`1` to `5`
         "mode": "sequence",
         "area": "Midtown, New York, NY",
         "items": [
-          { "id": "bryant_park", "name": "Bryant Park" },
-          { "id": "nypl", "name": "New York Public Library" },
-          { "id": "grand_central", "name": "Grand Central Terminal" },
-          { "id": "morgan_library", "name": "The Morgan Library & Museum" }
+          { "id": "bryant_park", "query": "Bryant Park" },
+          { "id": "nypl", "query": "New York Public Library" },
+          { "id": "grand_central", "query": "Grand Central Terminal" },
+          { "id": "morgan_library", "query": "The Morgan Library & Museum" }
         ]
       }'
     ```
